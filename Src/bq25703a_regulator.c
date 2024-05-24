@@ -15,6 +15,7 @@
 #include "usbpd.h"
 
 extern I2C_HandleTypeDef hi2c1;
+extern TaskHandle_t regulatorTaskHandle;
 
 /* Private typedef -----------------------------------------------------------*/
 struct Regulator {

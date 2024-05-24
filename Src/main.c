@@ -118,6 +118,10 @@ osThreadId blinkyTaskHandle;
 SemaphoreHandle_t xTxMutex_CLI;
 SemaphoreHandle_t xTxMutex_Regulator;
 
+osThreadId adcTaskHandle;
+osThreadId regulatorTaskHandle;
+TaskHandle_t CLITaskHandle;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
