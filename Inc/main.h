@@ -101,20 +101,39 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define Cell_4S_ADC_Pin GPIO_PIN_0
-#define Cell_4S_ADC_GPIO_Port GPIOA
-#define Cell_3S_ADC_Pin GPIO_PIN_1
-#define Cell_3S_ADC_GPIO_Port GPIOA
-#define Cell_2S_ADC_Pin GPIO_PIN_2
-#define Cell_2S_ADC_GPIO_Port GPIOA
-#define Cell_1S_ADC_Pin GPIO_PIN_3
+#define Cell_1S_ADC_Pin GPIO_PIN_2
 #define Cell_1S_ADC_GPIO_Port GPIOA
-#define BAT_ADC_Pin GPIO_PIN_4
+#define Cell_2S_ADC_Pin GPIO_PIN_3
+#define Cell_2S_ADC_GPIO_Port GPIOA
+#define Cell_3S_ADC_Pin GPIO_PIN_4
+#define Cell_3S_ADC_GPIO_Port GPIOA
+#define Cell_4S_ADC_Pin GPIO_PIN_5
+#define Cell_4S_ADC_GPIO_Port GPIOA
+#define BAT_ADC_Pin GPIO_PIN_6
 #define BAT_ADC_GPIO_Port GPIOA
-#define Blue_LED_Pin GPIO_PIN_5
+
+
+#define Blue_LED_Pin GPIO_PIN_8
 #define Blue_LED_GPIO_Port GPIOA
-#define Green_LED_Pin GPIO_PIN_7
-#define Green_LED_GPIO_Port GPIOA
+
+
+#define Green_LED_Pin GPIO_PIN_3
+#define Green_LED_GPIO_Port GPIOB
+
+//#define Cell_4S_ADC_Pin GPIO_PIN_0
+//#define Cell_4S_ADC_GPIO_Port GPIOA
+//#define Cell_3S_ADC_Pin GPIO_PIN_1
+//#define Cell_3S_ADC_GPIO_Port GPIOA
+//#define Cell_2S_ADC_Pin GPIO_PIN_2
+//#define Cell_2S_ADC_GPIO_Port GPIOA
+//#define Cell_1S_ADC_Pin GPIO_PIN_3
+//#define Cell_1S_ADC_GPIO_Port GPIOA
+//#define BAT_ADC_Pin GPIO_PIN_4
+//#define BAT_ADC_GPIO_Port GPIOA
+//#define Blue_LED_Pin GPIO_PIN_5
+//#define Blue_LED_GPIO_Port GPIOA
+//#define Green_LED_Pin GPIO_PIN_7
+//#define Green_LED_GPIO_Port GPIOA
 #define EN_OTG_Pin GPIO_PIN_0
 #define EN_OTG_GPIO_Port GPIOB
 #define PROTCHOT_Pin GPIO_PIN_1
