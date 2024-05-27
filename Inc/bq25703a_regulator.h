@@ -112,8 +112,4 @@ void vRegulator(void const *pvParameters);
  more than one task. */
 extern SemaphoreHandle_t xTxMutex_Regulator;
 
-#ifdef __cplusplus
-}
-#endif
-
 #endif /* BQ25703A_REGULATOR_H_ */
