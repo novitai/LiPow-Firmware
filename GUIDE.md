@@ -25,5 +25,6 @@
 - Connect VCC, GND, SWDIO, SWCLK, RST on ST-Link/v2 to STM32 board.
 - Press `Connect` to connect to the board.
 - Press `Open file` and open the binary file that you have compiled.
-- Write the binary to the board.
+- Press `Download`, the binary will be embedded to the STM32 board.
 - Go back to `Device memory` and read, you should be able to see the written binary.
+- Press `Disconnect` to disconnect the board connection.
