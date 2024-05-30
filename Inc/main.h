@@ -111,35 +111,16 @@ void Error_Handler(void);
 #define Cell_4S_ADC_GPIO_Port GPIOA
 #define BAT_ADC_Pin GPIO_PIN_6
 #define BAT_ADC_GPIO_Port GPIOA
-
-
 #define Blue_LED_Pin GPIO_PIN_8
 #define Blue_LED_GPIO_Port GPIOA
-
-
-#define Green_LED_Pin GPIO_PIN_3
-#define Green_LED_GPIO_Port GPIOB
-
-//#define Cell_4S_ADC_Pin GPIO_PIN_0
-//#define Cell_4S_ADC_GPIO_Port GPIOA
-//#define Cell_3S_ADC_Pin GPIO_PIN_1
-//#define Cell_3S_ADC_GPIO_Port GPIOA
-//#define Cell_2S_ADC_Pin GPIO_PIN_2
-//#define Cell_2S_ADC_GPIO_Port GPIOA
-//#define Cell_1S_ADC_Pin GPIO_PIN_3
-//#define Cell_1S_ADC_GPIO_Port GPIOA
-//#define BAT_ADC_Pin GPIO_PIN_4
-//#define BAT_ADC_GPIO_Port GPIOA
-//#define Blue_LED_Pin GPIO_PIN_5
-//#define Blue_LED_GPIO_Port GPIOA
-//#define Green_LED_Pin GPIO_PIN_7
-//#define Green_LED_GPIO_Port GPIOA
 #define EN_OTG_Pin GPIO_PIN_0
 #define EN_OTG_GPIO_Port GPIOB
 #define PROTCHOT_Pin GPIO_PIN_1
 #define PROTCHOT_GPIO_Port GPIOB
 #define Red_LED_Pin GPIO_PIN_2
 #define Red_LED_GPIO_Port GPIOB
+#define Green_LED_Pin GPIO_PIN_3
+#define Green_LED_GPIO_Port GPIOB
 #define ILIM_HIZ_Pin GPIO_PIN_11
 #define ILIM_HIZ_GPIO_Port GPIOB
 #define CHRG_OK_Pin GPIO_PIN_12
@@ -152,6 +133,13 @@ void Error_Handler(void);
 #define CELL_3S_DIS_EN_GPIO_Port GPIOB
 #define CELL_4S_DIS_EN_Pin GPIO_PIN_9
 #define CELL_4S_DIS_EN_GPIO_Port GPIOB
+#define ADC_ENABLE_Pin GPIO_PIN_6
+#define ADC_ENABLE_GPIO_Port GPIOC
+#define PWR_OUT_ENABLE_Pin GPIO_PIN_7
+#define PWR_OUT_ENABLE_GPIO_Port GPIOC
+#define VBAT_PWR_ENABLE_Pin GPIO_PIN_13
+#define VBAT_PWR_ENABLE_GPIO_Port GPIOC
+
 /* USER CODE BEGIN Private defines */
 
 #define LIPOW_MAJOR_VERSION	(uint8_t)1
