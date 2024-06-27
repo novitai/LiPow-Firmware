@@ -43,11 +43,24 @@
 #include "usbpd.h"
 #include <stdlib.h>
 
+/* Include main header for pin definitions used by pwron/pwroff commands */
+#include "main.h"
+
 /*
  * Defines a command that returns a table showing the state of each task at the
  * time the command is called.
  */
 static BaseType_t prvStatsCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString);
+
+/*
+ * Implements the pwron command.
+ */
+static BaseType_t prvPwrOnCommand( char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
+
+/*
+ * Implements the pwroff command.
+ */
+static BaseType_t prvPwrOffCommand( char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
 
 /*
  * Implements the task-stats command.
@@ -77,6 +90,24 @@ static const CLI_Command_Definition_t xStats =
 	"stats", /* The command string to type. */
 	"\r\nstats:\r\n Displays a table showing the system stats\r\n",
 	prvStatsCommand, /* The function to run. */
+	0 /* No parameters are expected. */
+};
+
+/* Structure that defines the "pwron" command line command. */
+static const CLI_Command_Definition_t xPwrOn =
+{
+	"pwron", /* The command string to type. */
+	"\r\pwron:\r\n Turns output power on\r\n",
+	prvPwrOnCommand, /* The function to run. */
+	0 /* No parameters are expected. */
+};
+
+/* Structure that defines the "pwroff" command line command. */
+static const CLI_Command_Definition_t xPwrOff =
+{
+	"pwroff", /* The command string to type. */
+	"\r\pwroff:\r\n Turns output power off\r\n",
+	prvPwrOffCommand, /* The function to run. */
 	0 /* No parameters are expected. */
 };
 
@@ -125,6 +156,8 @@ static const CLI_Command_Definition_t xTaskStats =
 void vRegisterCLICommands(void) {
 	/* Register all the command line commands defined immediately above. */
 	FreeRTOS_CLIRegisterCommand(&xStats);
+	FreeRTOS_CLIRegisterCommand(&xPwrOn);
+	FreeRTOS_CLIRegisterCommand(&xPwrOff);
 
 	FreeRTOS_CLIRegisterCommand(&xCal);
 
@@ -224,6 +257,40 @@ static BaseType_t prvStatsCommand(char *pcWriteBuffer, size_t xWriteBufferLen, c
 			input_power,
 			efficiency,
 			Get_Error_State());
+
+	/* There is no more data to return after this single string, so return
+	 pdFALSE. */
+	return pdFALSE;
+}
+/*-----------------------------------------------------------*/
+
+static BaseType_t prvPwrOnCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) {
+	/* Remove compile time warnings about unused parameters, and check the
+	 write buffer is not NULL.  NOTE - for simplicity, this example assumes the
+	 write buffer length is adequate, so does not check for buffer overflows. */
+	(void) pcCommandString;
+	(void) xWriteBufferLen;
+	configASSERT(pcWriteBuffer);
+
+	HAL_GPIO_WritePin(GPIOC, PWR_OUT_EN_Pin, GPIO_PIN_SET);
+	sprintf(pcWriteBuffer,"Power on\r\n");
+
+	/* There is no more data to return after this single string, so return
+	 pdFALSE. */
+	return pdFALSE;
+}
+/*-----------------------------------------------------------*/
+
+static BaseType_t prvPwrOffCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString) {
+	/* Remove compile time warnings about unused parameters, and check the
+	 write buffer is not NULL.  NOTE - for simplicity, this example assumes the
+	 write buffer length is adequate, so does not check for buffer overflows. */
+	(void) pcCommandString;
+	(void) xWriteBufferLen;
+	configASSERT(pcWriteBuffer);
+
+	HAL_GPIO_WritePin(GPIOC, PWR_OUT_EN_Pin, GPIO_PIN_RESET);
+	sprintf(pcWriteBuffer,"Power off\r\n");
 
 	/* There is no more data to return after this single string, so return
 	 pdFALSE. */
