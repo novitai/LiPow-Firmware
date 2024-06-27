@@ -3,7 +3,7 @@
   <FileVersion>3.0</FileVersion>
   <Workspace>
     <WorkspaceType>Single-project</WorkspaceType>
-    <WorkspacePath>C:\Users\PaulRiggs\repos\Hamza\LiPow-Firmware\</WorkspacePath>
+    <WorkspacePath>C:\Users\PaulRiggs\repos\Novit\LiPow-Firmware\</WorkspacePath>
     <underRoot>true</underRoot>
     <TrustZone>0</TrustZone>
     <HAL_Driver>C:\Users\PaulRiggs\STM32Cube\Repository\STM32Cube_FW_G0_V1.2.0</HAL_Driver>

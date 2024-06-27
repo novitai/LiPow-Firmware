@@ -707,8 +707,8 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, EN_OTG_Pin|ILIM_HIZ_Pin|GPIO_PIN_15|Green_LED_Pin
-                          |CELL_1S_DIS_EN_Pin|CELL_2S_DIS_EN_Pin|CELL_3S_DIS_EN_Pin|CELL_4S_DIS_EN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, EN_OTG_Pin|ILIM_HIZ_Pin|Green_LED_Pin|CELL_1S_DIS_EN_Pin
+                          |CELL_2S_DIS_EN_Pin|CELL_3S_DIS_EN_Pin|CELL_4S_DIS_EN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(Red_LED_GPIO_Port, Red_LED_Pin, GPIO_PIN_SET);
@@ -719,12 +719,10 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, ADC_EN_Pin|PWR_OUT_EN_Pin, GPIO_PIN_SET);
 
-  /*Configure GPIO pins : EN_OTG_Pin Red_LED_Pin ILIM_HIZ_Pin PB15
-                           Green_LED_Pin CELL_1S_DIS_EN_Pin CELL_2S_DIS_EN_Pin CELL_3S_DIS_EN_Pin
-                           CELL_4S_DIS_EN_Pin */
-  GPIO_InitStruct.Pin = EN_OTG_Pin|Red_LED_Pin|ILIM_HIZ_Pin|GPIO_PIN_15
-                          |Green_LED_Pin|CELL_1S_DIS_EN_Pin|CELL_2S_DIS_EN_Pin|CELL_3S_DIS_EN_Pin
-                          |CELL_4S_DIS_EN_Pin;
+  /*Configure GPIO pins : EN_OTG_Pin Red_LED_Pin ILIM_HIZ_Pin Green_LED_Pin
+                           CELL_1S_DIS_EN_Pin CELL_2S_DIS_EN_Pin CELL_3S_DIS_EN_Pin CELL_4S_DIS_EN_Pin */
+  GPIO_InitStruct.Pin = EN_OTG_Pin|Red_LED_Pin|ILIM_HIZ_Pin|Green_LED_Pin
+                          |CELL_1S_DIS_EN_Pin|CELL_2S_DIS_EN_Pin|CELL_3S_DIS_EN_Pin|CELL_4S_DIS_EN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

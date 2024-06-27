@@ -98,12 +98,12 @@ Open the .ioc file, select continue, don't migrate
 Ctrl-S to save and generate code
 
 Some old libraries are still in use in this fork of the LiPow code (PD stack).
-For this reason, after building, go to VSCode and discard all changes, except:
-- .cproject
-- .mxproject
+For this reason, after building, go to VSCode and discard all changes (including deletions), except:
 - Lipow.ioc
 - mx.scratch
 - main.c
+- .cproject
+- .mxproject
 
 The compiled binary can be found in: Debug/Lipow.bin
 .elf files include the debugger.
@@ -113,9 +113,15 @@ continue don't migrate
 
 ## Debugging
 
+Run > Debug configurations
+Under C/C++ Application, find .elf file from Debug/
+
+Make sure device is powered
 Click debug button, switch to debug perspective
 Select STM32 (double click)
 Find .elf file in project files (Debug/)
 
-F8 (Resume) to run code
+F8 (Resume) to run code, or click resume button.
 To view variables live: Live expressions, add new expression
+
+Clicking stop exits debugger view.
