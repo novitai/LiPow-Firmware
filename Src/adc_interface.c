@@ -30,8 +30,8 @@ struct Adc {
 
 /* Private variables ---------------------------------------------------------*/
 struct Adc adc_values;
-uint32_t adc_buffer[7];
-static volatile uint32_t adc_scalars[SCALAR_ARRAY_SIZE], adc_offset[SCALAR_ARRAY_SIZE], adc_buffer_filtered[7], adc_filtered_output[7];
+uint32_t adc_buffer[8];
+static volatile uint32_t adc_scalars[SCALAR_ARRAY_SIZE], adc_offset[SCALAR_ARRAY_SIZE], adc_buffer_filtered[8], adc_filtered_output[8];
 static volatile uint32_t adc_sum_count;
 static volatile uint16_t vrefint_cal;
 static volatile uint8_t cal_present;

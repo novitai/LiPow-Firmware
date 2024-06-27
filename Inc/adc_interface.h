@@ -77,7 +77,7 @@ uint32_t Get_VDDa(void);
 
 uint8_t Write_Cal_To_OTP_Flash(void);
 
-osThreadId adcTaskHandle;
+extern osThreadId adcTaskHandle;
 
 #ifdef __cplusplus
 }

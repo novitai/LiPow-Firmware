@@ -47,7 +47,7 @@ void vRegisterCLICommands(void);
 /* Used to guard access to the UART in case messages are sent to the UART from
  more than one task. */
 extern SemaphoreHandle_t xTxMutex_CLI;
-osThreadId CLITaskHandle;
+extern osThreadId CLITaskHandle;
 
 #endif /* UART_COMMAND_CONSOLE_H */
 

@@ -1,7 +1,12 @@
 # Introduction
-Firmware for LiPow the open Source Lipo Battery Charger with USB C Power Delivery Based on the STM32G0
+Fork of firmware for LiPow the open Source Lipo Battery Charger with USB C Power Delivery Based on the STM32G0
 
 LiPow uses USB Type C with Power Delivery to charge Lithium Polymer batteries. It supports charging and balancing for 2s-4s packs. The device supports charging up to 100W.
+
+[Original firmware](https://github.com/AlexKlimaj/LiPow-Firmware)
+[Original hardware](https://github.com/AlexKlimaj/LiPow-Hardware)
+
+This fork updates the original LiPow Firmware to use STM32CubeIDE and its modern build tools, a change from the original build environment, Atollic TrueStudio.
 
 # **LiPow Features**
 
@@ -79,10 +84,38 @@ To place the STM32G0 into bootloader mode and enable UART firmware loading, jump
 
 ![LiPow CLI](https://i.imgur.com/6QrrqDk.png "LiPow CLI")
 
-# Where to Buy
+# **Build instructions**
 
-You can purchase a unit [here](https://www.tindie.com/products/arkelectronics/lipow-the-usb-c-lipo-battery-charger/) or a bare PCB [here](https://www.tindie.com/products/arkelectronics/lipow-the-usb-c-lipo-battery-charger-bare-pcb/).
+Multiple projects can exist in a workspace. Projects can be imported from, and remain located outside of, the workspace folder.
+Projects in a workspace are shown as root folders in the Project Explorer. Right click on them to open, close, build, delete them from the workspace.
 
-# Questions, Comments, and Contributions
+## Reconfigure and recompile
 
-Pull requests are welcome. If you have questions or comments, you can email me directly at alex@arkelectron.com. 
+The project's .ioc file, named after the project, contains the configuration parameters.
+
+Open the .ioc file, select continue, don't migrate
+
+Ctrl-S to save and generate code
+
+Some old libraries are still in use in this fork of the LiPow code (PD stack).
+For this reason, after building, go to VSCode and discard all changes, except:
+- .cproject
+- .mxproject
+- Lipow.ioc
+- mx.scratch
+- main.c
+
+The compiled binary can be found in: Debug/Lipow.bin
+.elf files include the debugger.
+
+continue don't migrate
+
+
+## Debugging
+
+Click debug button, switch to debug perspective
+Select STM32 (double click)
+Find .elf file in project files (Debug/)
+
+F8 (Resume) to run code
+To view variables live: Live expressions, add new expression

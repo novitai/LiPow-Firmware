@@ -42,17 +42,17 @@
  * See http://www.freertos.org/a00110.html
  *----------------------------------------------------------*/
 
-/* USER CODE BEGIN Includes */   	      
+/* USER CODE BEGIN Includes */
 /* Section where include file can be added */
-/* USER CODE END Includes */ 
+/* USER CODE END Includes */
 
 /* Ensure stdint is only used by the compiler, and not the assembler. */
 #if defined(__ICCARM__) || defined(__CC_ARM) || defined(__GNUC__)
     #include <stdint.h>
     extern uint32_t SystemCoreClock;
-/* USER CODE BEGIN 0 */   	      
+/* USER CODE BEGIN 0 */
     extern volatile unsigned long ulHighFrequencyTimerTicks;
-/* USER CODE END 0 */       
+/* USER CODE END 0 */
 #endif
 
 #define configUSE_PREEMPTION                     1
@@ -102,13 +102,13 @@ standard names. */
               to prevent overwriting SysTick_Handler defined within STM32Cube HAL */
 #define xPortSysTickHandler SysTick_Handler
 
-/* USER CODE BEGIN 2 */    
+/* USER CODE BEGIN 2 */
 /* Definitions needed when configGENERATE_RUN_TIME_STATS is on */
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() ( ulHighFrequencyTimerTicks = 0UL )
 #define portGET_RUN_TIME_COUNTER_VALUE() ulHighFrequencyTimerTicks
 /* USER CODE END 2 */
 
-/* USER CODE BEGIN Defines */   	      
+/* USER CODE BEGIN Defines */
 /* Section where parameter definitions can be added (for instance, to override default ones in FreeRTOS.h) */
 #define configCOMMAND_INT_MAX_OUTPUT_SIZE 3200
 #define configUSE_STATS_FORMATTING_FUNCTIONS 1
@@ -125,6 +125,6 @@ standard names. */
 #define vRead_ADC_STACK_SIZE			( configMINIMAL_STACK_SIZE * 5 )
 #define vRegulator_STACK_SIZE			( configMINIMAL_STACK_SIZE * 4 )
 
-/* USER CODE END Defines */ 
+/* USER CODE END Defines */
 
 #endif /* FREERTOS_CONFIG_H */

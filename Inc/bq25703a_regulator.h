@@ -110,6 +110,6 @@ void vRegulator(void const *pvParameters);
 /* Used to guard access to the I2C in case messages are sent to the UART from
  more than one task. */
 extern SemaphoreHandle_t xTxMutex_Regulator;
-osThreadId regulatorTaskHandle;
+extern osThreadId regulatorTaskHandle;
 
 #endif /* BQ25703A_REGULATOR_H_ */
