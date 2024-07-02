@@ -102,6 +102,9 @@ For this reason, after building, go to VSCode and discard all changes (including
 - Lipow.ioc
 - mx.scratch
 - main.c
+- main.h
+- stm32g0xx_hal_msp.c
+- stm32g0xx_it.c ?
 - .cproject
 - .mxproject
 

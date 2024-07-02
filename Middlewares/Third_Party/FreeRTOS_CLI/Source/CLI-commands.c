@@ -97,7 +97,7 @@ static const CLI_Command_Definition_t xStats =
 static const CLI_Command_Definition_t xPwrOn =
 {
 	"pwron", /* The command string to type. */
-	"\r\pwron:\r\n Turns output power on\r\n",
+	"\r\npwron:\r\n Turns output power on\r\n",
 	prvPwrOnCommand, /* The function to run. */
 	0 /* No parameters are expected. */
 };
@@ -106,7 +106,7 @@ static const CLI_Command_Definition_t xPwrOn =
 static const CLI_Command_Definition_t xPwrOff =
 {
 	"pwroff", /* The command string to type. */
-	"\r\pwroff:\r\n Turns output power off\r\n",
+	"\r\npwroff:\r\n Turns output power off\r\n",
 	prvPwrOffCommand, /* The function to run. */
 	0 /* No parameters are expected. */
 };
