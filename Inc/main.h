@@ -101,22 +101,20 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define Thermistor_1_ADC_Pin GPIO_PIN_0
-#define Thermistor_1_ADC_GPIO_Port GPIOA
-#define Thermistor_2_ADC_Pin GPIO_PIN_1
-#define Thermistor_2_ADC_GPIO_Port GPIOA
-#define Cell_1S_ADC_Pin GPIO_PIN_2
-#define Cell_1S_ADC_GPIO_Port GPIOA
-#define Cell_2S_ADC_Pin GPIO_PIN_3
-#define Cell_2S_ADC_GPIO_Port GPIOA
-#define Cell_3S_ADC_Pin GPIO_PIN_4
-#define Cell_3S_ADC_GPIO_Port GPIOA
-#define Cell_4S_ADC_Pin GPIO_PIN_5
+#define Cell_4S_ADC_Pin GPIO_PIN_0
 #define Cell_4S_ADC_GPIO_Port GPIOA
-#define BAT_ADC_Pin GPIO_PIN_6
+#define Cell_3S_ADC_Pin GPIO_PIN_1
+#define Cell_3S_ADC_GPIO_Port GPIOA
+#define Cell_2S_ADC_Pin GPIO_PIN_2
+#define Cell_2S_ADC_GPIO_Port GPIOA
+#define Cell_1S_ADC_Pin GPIO_PIN_3
+#define Cell_1S_ADC_GPIO_Port GPIOA
+#define BAT_ADC_Pin GPIO_PIN_4
 #define BAT_ADC_GPIO_Port GPIOA
-#define OS_ADC_Pin GPIO_PIN_7
-#define OS_ADC_GPIO_Port GPIOA
+#define Blue_LED_Pin GPIO_PIN_5
+#define Blue_LED_GPIO_Port GPIOA
+#define Green_LED_Pin GPIO_PIN_7
+#define Green_LED_GPIO_Port GPIOA
 #define EN_OTG_Pin GPIO_PIN_0
 #define EN_OTG_GPIO_Port GPIOB
 #define PROTCHOT_Pin GPIO_PIN_1
@@ -127,14 +125,10 @@ void Error_Handler(void);
 #define ILIM_HIZ_GPIO_Port GPIOB
 #define CHRG_OK_Pin GPIO_PIN_12
 #define CHRG_OK_GPIO_Port GPIOB
-#define Blue_LED_Pin GPIO_PIN_8
-#define Blue_LED_GPIO_Port GPIOA
 #define ADC_EN_Pin GPIO_PIN_6
 #define ADC_EN_GPIO_Port GPIOC
 #define PWR_OUT_EN_Pin GPIO_PIN_7
 #define PWR_OUT_EN_GPIO_Port GPIOC
-#define Green_LED_Pin GPIO_PIN_3
-#define Green_LED_GPIO_Port GPIOB
 #define CELL_1S_DIS_EN_Pin GPIO_PIN_4
 #define CELL_1S_DIS_EN_GPIO_Port GPIOB
 #define CELL_2S_DIS_EN_Pin GPIO_PIN_5

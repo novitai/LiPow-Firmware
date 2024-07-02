@@ -17,8 +17,24 @@ Charge current stored in `charge_current`
 Code found in bq25703a_regulator.c
 
 `Set_Charge_Current` - function to set charge current
-`NON_USB_PD_CHARGE_POWER` originally 2500mA, reduced to 500mA, defined in \Inc\bq25703a_regulator.h
+`NON_USB_PD_CHARGE_POWER` originally 2500mA, reduced to 500mA, defined in \Inc\bq25703a_regulator.h (still overcharges)
+`MAX_CHARGE_CURRENT_MA` originally 6000mA, reduced to 500mA, defined in \Inc\bq25703a_regulator.h
 `BATTERY_DISCONNECT_THRESH` supposed to cause charging to stop at 4.21V
+
+# Workings
+
+adc_interface.c
+adc_filtered_output is constantly updated and visible in debugger
+ADC works by constantly sampling ADCs, summing into adc_buffer_filtered for ADC_FILTER_SUM_COUNT (380) cycles, then dividing into adc_filtered_output
+Assigned ADC pin names don't appear to be used by code :/
+ADC variables are set directly from adc_filtered_output
+
+vRead_ADC() is where ADC channels are converted to variables
+
+In the .ioc file, analog channels are set up in:
+Analog > ADC1 > Configuration > Parameter Settings > X
+
+Consider using channel ranks defined automatically in main.c
 
 # Test results
 

@@ -144,12 +144,9 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     PA2     ------> ADC1_IN2
     PA3     ------> ADC1_IN3
     PA4     ------> ADC1_IN4
-    PA5     ------> ADC1_IN5
-    PA6     ------> ADC1_IN6
-    PA7     ------> ADC1_IN7
     */
-    GPIO_InitStruct.Pin = Thermistor_1_ADC_Pin|Thermistor_2_ADC_Pin|Cell_1S_ADC_Pin|Cell_2S_ADC_Pin
-                          |Cell_3S_ADC_Pin|Cell_4S_ADC_Pin|BAT_ADC_Pin|OS_ADC_Pin;
+    GPIO_InitStruct.Pin = Cell_4S_ADC_Pin|Cell_3S_ADC_Pin|Cell_2S_ADC_Pin|Cell_1S_ADC_Pin
+                          |BAT_ADC_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -204,12 +201,9 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
     PA2     ------> ADC1_IN2
     PA3     ------> ADC1_IN3
     PA4     ------> ADC1_IN4
-    PA5     ------> ADC1_IN5
-    PA6     ------> ADC1_IN6
-    PA7     ------> ADC1_IN7
     */
-    HAL_GPIO_DeInit(GPIOA, Thermistor_1_ADC_Pin|Thermistor_2_ADC_Pin|Cell_1S_ADC_Pin|Cell_2S_ADC_Pin
-                          |Cell_3S_ADC_Pin|Cell_4S_ADC_Pin|BAT_ADC_Pin|OS_ADC_Pin);
+    HAL_GPIO_DeInit(GPIOA, Cell_4S_ADC_Pin|Cell_3S_ADC_Pin|Cell_2S_ADC_Pin|Cell_1S_ADC_Pin
+                          |BAT_ADC_Pin);
 
     /* ADC1 DMA DeInit */
     HAL_DMA_DeInit(hadc->DMA_Handle);

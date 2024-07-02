@@ -281,6 +281,9 @@ void vRead_ADC(void const *pvParameters) {
 		if (thread_notification) {
 
 			/* A notification was received. */
+
+			// ADC array is handled here, but order of elements is set in .ioc file [PR]
+			
 			Set_Battery_Voltage(adc_filtered_output[0]);
 
 			for (int i = 0; i < 4; i++) {
