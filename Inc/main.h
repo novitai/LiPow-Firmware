@@ -148,8 +148,8 @@ void Error_Handler(void);
 #define ADC_EN_GPIO_Port GPIOC
 #define PWR_OUT_EN_Pin GPIO_PIN_7
 #define PWR_OUT_EN_GPIO_Port GPIOC
-#define LIPOW_MAJOR_VERSION	(uint8_t)1
-#define LIPOW_MINOR_VERSION	(uint8_t)3
+#define LIPOW_MAJOR_VERSION	(uint8_t)2
+#define LIPOW_MINOR_VERSION	(uint8_t)0
 
 /* USER CODE END Private defines */
 
