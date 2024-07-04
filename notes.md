@@ -20,6 +20,7 @@ Code found in bq25703a_regulator.c
 `NON_USB_PD_CHARGE_POWER` originally 2500mA, reduced to 500mA, defined in \Inc\bq25703a_regulator.h (still overcharges)
 `MAX_CHARGE_CURRENT_MA` originally 6000mA, reduced to 500mA, defined in \Inc\bq25703a_regulator.h
 `BATTERY_DISCONNECT_THRESH` supposed to cause charging to stop at 4.21V
+`Regulator_Read_ADC()` reads regulator ADCs
 
 # Workings
 
@@ -35,6 +36,10 @@ In the .ioc file, analog channels are set up in:
 Analog > ADC1 > Configuration > Parameter Settings > X
 
 Consider using channel ranks defined automatically in main.c
+
+When testing, remember to connect VBATT and 4S
+
+Overcharging likely happening because voltage/current sensing reads zero. This is being read directly from the regulator IC.
 
 # Test results
 

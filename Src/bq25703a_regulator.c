@@ -16,6 +16,8 @@
 
 extern I2C_HandleTypeDef hi2c1;
 
+uint8_t testbyte;  // [PR] test byte readable by debugger
+
 /* Private typedef -----------------------------------------------------------*/
 struct Regulator {
 	uint8_t connected;
@@ -266,14 +268,15 @@ void Regulator_Read_ADC() {
 
 	uint8_t ADC_msb_3B = ADC_START_CONVERSION_MASK;
 
-	I2C_Write_Register((ADC_OPTION_ADDR+1), (uint8_t *) &ADC_msb_3B);
+	I2C_Write_Register((ADC_OPTION_ADDR+1), (uint8_t *) &ADC_msb_3B);			// Start ADC conversion on BQ
 
 	/* Wait for the conversion to finish */
 	while (ADC_msb_3B & (1<<6)) {
 		vTaskDelay(xDelay);
-		I2C_Read_Register((ADC_OPTION_ADDR+1), (uint8_t *) &ADC_msb_3B, 1);
+		I2C_Read_Register((ADC_OPTION_ADDR+1), (uint8_t *) &ADC_msb_3B, 1);		// Wait for conversion to complete
 	}
 
+	// Read ADC conversion results
 	uint8_t temp = 0;
 
 	I2C_Read_Register(VBAT_ADC_ADDR, (uint8_t *) &temp, 1);
@@ -287,9 +290,12 @@ void Regulator_Read_ADC() {
 
 	I2C_Read_Register(IIN_ADC_ADDR, (uint8_t *) &temp, 1);
 	regulator.input_current = temp * IIN_ADC_SCALE;
+	//testbyte = temp;
 
 	I2C_Read_Register(VBUS_ADC_ADDR, (uint8_t *) &temp, 1);
 	regulator.vbus_voltage = (temp * VBUS_ADC_SCALE) + VBUS_ADC_OFFSET;
+	testbyte = temp;
+
 }
 
 /**
