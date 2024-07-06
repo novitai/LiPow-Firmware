@@ -296,7 +296,7 @@ uint8_t check_if_power_ready() {
 /**
   * @}
   */
- 
+
 /**
   * @}
   */
