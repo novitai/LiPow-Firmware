@@ -14,9 +14,9 @@
 #include "printf.h"
 #include "usbpd.h"
 
-extern I2C_HandleTypeDef hi2c1;
+extern I2C_HandleTypeDef hi2c1;		// I2C handle
 
-uint8_t testbyte;  // [PR] test byte readable by debugger
+uint16_t testword;  // [PR] test byte readable by debugger
 
 /* Private typedef -----------------------------------------------------------*/
 struct Regulator {
@@ -36,7 +36,7 @@ struct Regulator {
 /* Private variables ---------------------------------------------------------*/
 struct Regulator regulator;
 
-/* The maximum time to wait for the mutex that guards the UART to become
+/* The maximum time to wait for the mutex that guards the I2C bus to become
  available. */
 #define cmdMAX_MUTEX_WAIT	pdMS_TO_TICKS( 300 )
 
@@ -242,6 +242,8 @@ void Read_Charge_Status() {
 	uint8_t data[2];
 	I2C_Read_Register(CHARGE_STATUS_ADDR, data, 2);
 
+	testword = (data[1] << 8) | data[0];			// Copy status word into variable for debugging
+
 	if (data[1] & CHARGING_ENABLED_MASK) {
 		regulator.charging_status = 1;
 	}
@@ -290,11 +292,11 @@ void Regulator_Read_ADC() {
 
 	I2C_Read_Register(IIN_ADC_ADDR, (uint8_t *) &temp, 1);
 	regulator.input_current = temp * IIN_ADC_SCALE;
-	//testbyte = temp;
+	//testword = temp;
 
 	I2C_Read_Register(VBUS_ADC_ADDR, (uint8_t *) &temp, 1);
 	regulator.vbus_voltage = (temp * VBUS_ADC_SCALE) + VBUS_ADC_OFFSET;
-	testbyte = temp;
+	//testword = temp;
 
 }
 
@@ -468,6 +470,8 @@ void Control_Charger_Output() {
 	//Charging for USB PD enabled supplies
 	if ((Get_XT60_Connection_State() == CONNECTED) && (Get_Balance_Connection_State() == CONNECTED) && (Get_Error_State() == 0) && (Get_Input_Power_Ready() == READY) && (Get_Cell_Over_Voltage_State() == 0)) {
 
+		// XT60 connected, balance lead connected, no error, input PD power ready, no cell over voltage
+
 		Set_Charge_Voltage(Get_Number_Of_Cells());
 
 		uint32_t charging_current_ma = ((Calculate_Max_Charge_Power()) / (float)(Get_Battery_Voltage() / BATTERY_ADC_MULTIPLIER));
@@ -486,6 +490,8 @@ void Control_Charger_Output() {
 	// Case to handle non USB PD supplies. Limited to 5V 500mA.
 	else if ((Get_XT60_Connection_State() == CONNECTED) && (Get_Balance_Connection_State() == CONNECTED) && (Get_Error_State() == 0) && (Get_Input_Power_Ready() == NO_USB_PD_SUPPLY) && (Get_Cell_Over_Voltage_State() == 0)) {
 
+		// XT60 connected, balance lead connected, no error, power not PD, no cell over voltage
+
 		Set_Charge_Voltage(Get_Number_Of_Cells());
 
 		uint32_t charging_current_ma = ((NON_USB_PD_CHARGE_POWER * ASSUME_EFFICIENCY) / (Get_Battery_Voltage() / BATTERY_ADC_MULTIPLIER));
@@ -496,6 +502,9 @@ void Control_Charger_Output() {
 
 	}
 	else {
+
+		// Charge conditions not met, turn charge output off
+
 		Regulator_HI_Z(1);
 		Set_Charge_Voltage(0);
 		Set_Charge_Current(0);

@@ -65,6 +65,8 @@ void Balance_Battery()
 		}
 
 		if ( ((max_cell_voltage - min_cell_voltage) >= ((float)CELL_DELTA_V_ENABLE_BALANCING * scalar)) && (min_cell_voltage > MIN_CELL_V_FOR_BALANCING) && (battery_state.balancing_enabled == 0)) {
+			// Difference between min and max cells >= CELL_DELTA_V_ENABLE_BALANCING (scaled)
+			// AND min cell voltage > MIN_CELL_V_FOR_BALANCING
 			battery_state.balancing_enabled = 1;
 		}
 		else if ( (((max_cell_voltage - min_cell_voltage) < ((float)CELL_BALANCING_HYSTERESIS_V * scalar)) && (battery_state.balancing_enabled == 1)) || (min_cell_voltage < MIN_CELL_V_FOR_BALANCING) ) {

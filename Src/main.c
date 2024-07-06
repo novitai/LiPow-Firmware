@@ -796,7 +796,7 @@ void vLED_Blinky(void const *pvParameters) {
 			}
 		}
 		else if (Get_Error_State() != 0) {
-      // Flash LED red to incidacte error
+      // Flash LED red to indicate error
 
       // LED off
 			HAL_GPIO_WritePin(Red_LED_GPIO_Port, Red_LED_Pin, GPIO_PIN_SET);

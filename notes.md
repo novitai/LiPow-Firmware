@@ -14,7 +14,41 @@ Seems to be related to regulator, as it reports charge current.
 
 `vRegulator` runs as a task and reads regulator status and ADCs, calling `Control_Charger_Output` periodically to control charge parameters
 
-## Files
+`regulator.charging_status` derived from bit 2 of regulator status word
+
+# Stats
+Output of 'stats' command:
+
+Parameter|Source
+-|-
+Battery Voltage MCU(V)      |ADC VBat
+Battery Voltage Reg (V)     |Output voltage measured by regulator
+Charging Current (A)        |Output current measured by regulator
+Charging Power (W)          |Output power measured by regulator
+Cell One Voltage (V)        |Cell 1 ADC measurement, error checked
+Cell Two Voltage (V)        |Neighbouring ADC measurements, error checked
+Cell Three Voltage (V)      |Neighbouring ADC measurements, error checked
+Cell Four Voltage (V)       |Neighbouring ADC measurements, error checked
+2 Series Voltage (V)        |2S voltage direct from ADC
+3 Series Voltage (V)        |3S voltage direct from ADC
+4 Series Voltage (V)        |4S voltage direct from ADC
+MCU Temperature (C)         |ADC temp sense channel
+VDDa (V)                    |ADC Vrefint channel
+XT60 Connected              |Set if battery voltage > VOLTAGE_CONNECTED_THRESHOLD
+Balance Connection State    |Set if number_of_cells > 1
+Number of Cells             |Number of cells in series connected, from cell ADCs
+Battery Requires Charging   |XT60 and balance connected, voltage > CELL_VOLTAGE_TO_ENABLE_CHARGING
+Balancing State/Bitmask     |Cell voltage >= CELL_OVER_VOLTAGE_ENABLE_DISCHARGE
+Regulator Connection State  |From Query_Regulator_Connection() (read I2C) once at startup
+Charging State              |Set from I2C (0x21) IN_FCHRG continuously by Read_Charge_Status()
+Max Charge Current          |Estimated available current, based on PD capability
+Vbus Voltage (V)            |Input voltage as measured by regulator
+Input Current (A)           |Input current as measured by regulator (50mA resolution)
+Input Power (W)             |Input power as measured by regulator
+Efficiency (OutputW/InputW) |Output Power / Input Power
+Error State Flags           |From 'error_state', see below
+
+# Files
 
 File|Purpose
 -|-
@@ -22,17 +56,22 @@ adc_interface.c|Manages ADCs, continuously reads and provides filtered output
 bq25703a_regulator.c|Regulator control and charge control code
 usbpd.c|USB power delivery control code
 CLI-commands.c|Command line interface commands
+battery.c|Manages battery state and balancing
 
-## Constants
+# Constants
 
 Constant|Defined in|Original|Current|Purpose
 -|-|-|-|-
+ADC_FILTER_SUM_COUNT|adc_interface.h|380|380|Number of ADC samples to combine for filtering
 NON_USB_PD_CHARGE_POWER|bq25703a_regulator.h|2500|500|Sets charge current (mA) from non-PD supply
 MAX_CHARGE_CURRENT_MA|bq25703a_regulator.h|6000|500|Sets charge current (mA) from PD supply
-BATTERY_DISCONNECT_THRESH|bq25703a_regulator.h|4.215|4.15|Per-cell voltage to stop charging at
-ADC_FILTER_SUM_COUNT|adc_interface.h|380|380|Number of ADC samples to combine for filtering
+BATTERY_DISCONNECT_THRESH|bq25703a_regulator.h|4.215|4.215|Per-cell voltage above this threshold interpreted as disconnected charge lead
+MIN_CELL_V_FOR_BALANCING|battery.h|3.0|3.0|Balancing not allowed if any cell is under this voltage
+CELL_VOLTAGE_TO_ENABLE_CHARGING|battery.h|4.18|4.08|Charging only starts if average cell voltage below this
+CELL_OVER_VOLTAGE_ENABLE_DISCHARGE|battery.h|4.205|4.105|Discharge any cells above this voltage
+CELL_OVER_VOLTAGE_DISABLE_CHARGING|battery.h|4.22|4.12|Cell overvoltage, stop charging
 
-## Error flags
+# Error flags
 Error flags stored in `error_state`, accessed via Get_Error_State() and 'stats' output.
 
 Error|Bit|Value|Meaning

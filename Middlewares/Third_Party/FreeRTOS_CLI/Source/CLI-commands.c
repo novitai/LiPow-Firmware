@@ -222,7 +222,7 @@ static BaseType_t prvStatsCommand(char *pcWriteBuffer, size_t xWriteBufferLen, c
 			"Balance Connection State     %u\r\n"
 			"Number of Cells              %u\r\n"
 			"Battery Requires Charging    %u\r\n"
-			"Balancing State/Bitmask      %b\r\n"
+			"Balancing State (4321)       %04b\r\n"
 			"Regulator Connection State   %d\r\n"
 			"Charging State               %u\r\n"
 			"Max Charge Current           %.3f\r\n"
