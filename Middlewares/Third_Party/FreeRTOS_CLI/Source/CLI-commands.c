@@ -230,7 +230,7 @@ static BaseType_t prvStatsCommand(char *pcWriteBuffer, size_t xWriteBufferLen, c
 			"Input Current (A)            %.3f\r\n"
 			"Input Power (W)              %.3f\r\n"
 			"Efficiency (OutputW/InputW)  %.3f\r\n"
-			"Battery Error State          %u\r\n",
+			"Error State Flags            %u\r\n",
 			battery_voltage,
 			regulator_vbat_voltage,
 			charge_current,

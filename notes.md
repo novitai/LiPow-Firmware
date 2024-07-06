@@ -6,28 +6,59 @@ Seems to be related to regulator, as it reports charge current.
 
 # Useful code
 
-Charge current stored in `charge_current`
+`Get_Charge_Current_ADC_Reading()` returns `regulator.charge_current`, regulator I2C register `ICHG_ADC_ADDR`.
 
-`charge_current` derived from `Get_Charge_Current_ADC_Reading`
+`Set_Charge_Current(current)` sets charge current
 
-`Get_Charge_Current_ADC_Reading` returns `regulator.charge_current`
-
-`regulator.charge_current` comes from I2C read of regulator `ICHG_ADC_ADDR` register
-
-Code found in bq25703a_regulator.c
-
-`Set_Charge_Current` - function to set charge current
-`NON_USB_PD_CHARGE_POWER` originally 2500mA, reduced to 500mA, defined in \Inc\bq25703a_regulator.h (still overcharges)
-`MAX_CHARGE_CURRENT_MA` originally 6000mA, reduced to 500mA, defined in \Inc\bq25703a_regulator.h
-`BATTERY_DISCONNECT_THRESH` supposed to cause charging to stop at 4.21V
 `Regulator_Read_ADC()` reads regulator ADCs
+
+`vRegulator` runs as a task and reads regulator status and ADCs, calling `Control_Charger_Output` periodically to control charge parameters
+
+## Files
+
+File|Purpose
+-|-
+adc_interface.c|Manages ADCs, continuously reads and provides filtered output
+bq25703a_regulator.c|Regulator control and charge control code
+usbpd.c|USB power delivery control code
+CLI-commands.c|Command line interface commands
+
+## Constants
+
+Constant|Defined in|Original|Current|Purpose
+-|-|-|-|-
+NON_USB_PD_CHARGE_POWER|bq25703a_regulator.h|2500|500|Sets charge current (mA) from non-PD supply
+MAX_CHARGE_CURRENT_MA|bq25703a_regulator.h|6000|500|Sets charge current (mA) from PD supply
+BATTERY_DISCONNECT_THRESH|bq25703a_regulator.h|4.215|4.15|Per-cell voltage to stop charging at
+ADC_FILTER_SUM_COUNT|adc_interface.h|380|380|Number of ADC samples to combine for filtering
+
+## Error flags
+Error flags stored in `error_state`, accessed via Get_Error_State() and 'stats' output.
+
+Error|Bit|Value|Meaning
+-|-|-|-
+CELL_CONNECTION_ERROR|0|1|Cell voltages indicate disconnected cell
+CELL_VOLTAGE_ERROR|1|2|At least one cell is under voltage
+XT60_VOLTAGE_ERROR|2|4|Unused
+MCU_OVER_TEMP|3|8|MCU temperature exceeds MAX_MCU_TEMP_C_FOR_OPERATION
+REGULATOR_COMMUNICATION_ERROR|4|16|I2C timeout or unexpected response
+VOLTAGE_INPUT_ERROR|5|32|Error indicated on regulator CHRG_OK pin
 
 # Workings
 
-adc_interface.c
+## Threads
+Threads defined in user code:
+Function|Purpose
+-|-
+StartDefaultTask|Empty default task
+vLED_Blinky|Control RGB LED
+vRead_ADC|Read and filter ADCs
+vRegulator|Control regulator and battery charging
+prvUARTCommandConsoleTask|Run CLI console
+## ADC input
 adc_filtered_output is constantly updated and visible in debugger
-ADC works by constantly sampling ADCs, summing into adc_buffer_filtered for ADC_FILTER_SUM_COUNT (380) cycles, then dividing into adc_filtered_output
-Assigned ADC pin names don't appear to be used by code :/
+ADC works by constantly sampling ADCs via DMA, summing into adc_buffer_filtered for ADC_FILTER_SUM_COUNT (380) cycles, then dividing into adc_filtered_output
+Assigned ADC pin names aren't used by code, rather their positions in the DMA read cycle
 ADC variables are set directly from adc_filtered_output
 
 vRead_ADC() is where ADC channels are converted to variables
@@ -40,6 +71,15 @@ Consider using channel ranks defined automatically in main.c
 When testing, remember to connect VBATT and 4S
 
 Overcharging likely happening because voltage/current sensing reads zero. This is being read directly from the regulator IC.
+
+Idea: Read status byte for debugging (only 1 bit currently used)
+
+Use serial debug statements to report charge strategy
+
+# Regulator notes
+
+PROCHOT is for warning the host system when certain current/voltage thresholds are exceeded
+
 
 # Test results
 

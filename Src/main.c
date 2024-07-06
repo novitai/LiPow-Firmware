@@ -757,6 +757,7 @@ void vLED_Blinky(void const *pvParameters) {
 
 	uint8_t count = 0;
 
+  // LED white
 	HAL_GPIO_WritePin(Red_LED_GPIO_Port, Red_LED_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(Green_LED_GPIO_Port, Green_LED_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(Blue_LED_GPIO_Port, Blue_LED_Pin, GPIO_PIN_RESET);
@@ -766,18 +767,22 @@ void vLED_Blinky(void const *pvParameters) {
 	for (;;) {
 
 		if ( (Get_Balance_Connection_State() != CONNECTED) && (Get_Error_State() == 0)) {
+      // Cycle GBR
 			switch (count) {
 			case 0:
+        // LED green
 				HAL_GPIO_WritePin(Red_LED_GPIO_Port, Red_LED_Pin, GPIO_PIN_SET);
 				HAL_GPIO_WritePin(Green_LED_GPIO_Port, Green_LED_Pin, GPIO_PIN_RESET);
 				HAL_GPIO_WritePin(Blue_LED_GPIO_Port, Blue_LED_Pin, GPIO_PIN_SET);
 				break;
 			case 1:
+        // LED blue
 				HAL_GPIO_WritePin(Red_LED_GPIO_Port, Red_LED_Pin, GPIO_PIN_SET);
 				HAL_GPIO_WritePin(Green_LED_GPIO_Port, Green_LED_Pin, GPIO_PIN_SET);
 				HAL_GPIO_WritePin(Blue_LED_GPIO_Port, Blue_LED_Pin, GPIO_PIN_RESET);
 				break;
 			case 2:
+        // LED red
 				HAL_GPIO_WritePin(Red_LED_GPIO_Port, Red_LED_Pin, GPIO_PIN_RESET);
 				HAL_GPIO_WritePin(Green_LED_GPIO_Port, Green_LED_Pin, GPIO_PIN_SET);
 				HAL_GPIO_WritePin(Blue_LED_GPIO_Port, Blue_LED_Pin, GPIO_PIN_SET);
@@ -791,11 +796,15 @@ void vLED_Blinky(void const *pvParameters) {
 			}
 		}
 		else if (Get_Error_State() != 0) {
+      // Flash LED red to incidacte error
+
+      // LED off
 			HAL_GPIO_WritePin(Red_LED_GPIO_Port, Red_LED_Pin, GPIO_PIN_SET);
 			HAL_GPIO_WritePin(Green_LED_GPIO_Port, Green_LED_Pin, GPIO_PIN_SET);
 			HAL_GPIO_WritePin(Blue_LED_GPIO_Port, Blue_LED_Pin, GPIO_PIN_SET);
 
 			for (int i = 0; i < (Get_Error_State()); i++) {
+        // LED flash red
 				vTaskDelay(200 / portTICK_PERIOD_MS);
 				HAL_GPIO_WritePin(Red_LED_GPIO_Port, Red_LED_Pin, GPIO_PIN_RESET);
 				vTaskDelay(200 / portTICK_PERIOD_MS);
@@ -805,6 +814,7 @@ void vLED_Blinky(void const *pvParameters) {
 		}
 		else {
 			if (Get_Balancing_State() >= 1) {
+        // Blue LED indicates at least one cell is balancing
 				HAL_GPIO_WritePin(Blue_LED_GPIO_Port, Blue_LED_Pin, GPIO_PIN_RESET);
 			}
 			else {
@@ -812,6 +822,7 @@ void vLED_Blinky(void const *pvParameters) {
 			}
 
 			if (Get_Requires_Charging_State() == 1) {
+        // Red LED indicates charging required
 				HAL_GPIO_WritePin(Red_LED_GPIO_Port, Red_LED_Pin, GPIO_PIN_RESET);
 			}
 			else {
@@ -819,6 +830,7 @@ void vLED_Blinky(void const *pvParameters) {
 			}
 
 			if ((Get_Requires_Charging_State() == 0) && (Get_Balancing_State() == 0)) {
+        // Green LED indicated battery is charged
 				HAL_GPIO_WritePin(Green_LED_GPIO_Port, Green_LED_Pin, GPIO_PIN_RESET);
 			}
 			else {
@@ -830,6 +842,7 @@ void vLED_Blinky(void const *pvParameters) {
 	}
 }
 
+// Define _putchar to send printf output to UART
 void _putchar(char character) {
 	UART_Transfer((uint8_t *) &character, 1);
 }

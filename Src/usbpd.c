@@ -67,7 +67,7 @@ volatile uint16_t voltage_choice_list_mv[3][VOLTAGE_CHOICE_ARRAY_SIZE] = {
 		{20000, 15000, 12000, 9000, 5000}  //Four S voltage choice list
 };
 
-osMessageQId  USBPDMsgBox;
+osMessageQId  USBPDMsgBox;					// Appears to be unused [PR]
 osThreadId USBPD_User_TaskHandle;
 
 void vUSBPD_User(void const *pvParameters);
@@ -96,6 +96,7 @@ void MX_USBPD_Init(void)
 
   /* USER CODE BEGIN 3 */
 
+	// After initialisation, start RTOS thread to run vUSBPD_User function [PR]
 	osThreadDef(usbpd_user_app, vUSBPD_User, USBPD_TASK_PRIORITY, 0, configMINIMAL_STACK_SIZE);
 	USBPD_User_TaskHandle = osThreadCreate(osThread(usbpd_user_app), NULL);
 
@@ -104,6 +105,8 @@ void MX_USBPD_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+// Custom USBPD-related functions:
 
 /**
  * @brief Gets the state of the input power supply

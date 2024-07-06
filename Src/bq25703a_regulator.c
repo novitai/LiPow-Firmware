@@ -369,6 +369,7 @@ void Set_Charge_Current(uint32_t charge_current_limit) {
 	}
 
 	I2C_Write_Two_Byte_Register(CHARGE_CURRENT_ADDR, charge_current_register_2_value, charge_current_register_1_value);
+	//printf("charge_current_limit: %d\r\n", charge_current_limit);
 
 	return;
 }
