@@ -22,9 +22,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usbpd_pwr_user.h"
 #include "stm32g0xx_hal.h"
-#include "bq25703a_regulator.h"
 
 /* USER CODE BEGIN include */
+
+#include "bq25703a_regulator.h"
 
 /* USER CODE END include */
 
