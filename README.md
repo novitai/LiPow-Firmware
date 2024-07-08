@@ -86,12 +86,31 @@ To place the STM32G0 into bootloader mode and enable UART firmware loading, jump
 
 # **Build instructions**
 
+Install STM32CubeIDE
+
+May need GnuWin32:
+
+https://sourceforge.net/projects/gnuwin32/
+
+Add 'make' to system path:
+
+System Properties > Environment Variables > System variables
+
+Add: `C:\ST\STM32CubeIDE_1.15.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.make.win32_2.1.300.202402091052\tools\bin`
+
+Requires:
+
+- STM32Cube FW_G0 V1.2.0
+- STM32CubeMX 6.5
+
 Multiple projects can exist in a workspace. Projects can be imported from, and remain located outside of, the workspace folder.
 Projects in a workspace are shown as root folders in the Project Explorer. Right click on them to open, close, build, delete them from the workspace.
 
 ## Reconfigure and recompile
 
 The project's .ioc file, named after the project, contains the configuration parameters.
+
+Pin definitions and DMA ADC channel setup are the main differences between original and new hardware.
 
 Open the .ioc file, select continue, don't migrate
 
