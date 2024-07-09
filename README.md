@@ -123,15 +123,19 @@ For this reason, after building, go to VSCode and discard all changes (including
 - main.c
 - main.h
 - stm32g0xx_hal_msp.c
-- stm32g0xx_it.c ?
 - .cproject
 - .mxproject
 
+This will bring back several deleted files that are necessary for the code to compile, including:
+
+- stm32g0xx_ll_usart.h
+- \Inc\usbpd*
+- \Src\usbpd*
+- \Utilities\GUI*
+- \Utilities\Tracer*
+
 The compiled binary can be found in: Debug/Lipow.bin
 .elf files include the debugger.
-
-continue don't migrate
-
 
 ## Debugging
 
