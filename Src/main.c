@@ -61,7 +61,7 @@
 #include "adc_interface.h"
 #include "battery.h"
 #include "bq25703a_regulator.h"
-#include "gui_api.h"
+#include "gui_api.h"                // Enables GUI for STM32CubeMonitor-UCPD. May not be needed? [PR]
 
 // System
 #include "printf.h"

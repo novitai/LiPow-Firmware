@@ -137,6 +137,18 @@ This will bring back several deleted files that are necessary for the code to co
 The compiled binary can be found in: Debug/Lipow.bin
 .elf files include the debugger.
 
+## Connect programmer
+
+- Connect programmer as per pinout
+- Set programmer type to ST-LINK, refresh serial number. It should be many characters long (legit programmer)
+
+### Versions
+
+.ioc file is different depending on hardware. Notice ADC order at start of file:
+
+- Original hardware: 4321
+- Updated hardware: 6234
+
 ## Debugging
 
 Run > Debug configurations
