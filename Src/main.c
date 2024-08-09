@@ -401,7 +401,7 @@ static void MX_ADC1_Init(void)
   }
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_4;
+  sConfig.Channel = ADC_CHANNEL_6;
   sConfig.Rank = ADC_REGULAR_RANK_1;
   sConfig.SamplingTime = ADC_SAMPLINGTIME_COMMON_1;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
@@ -410,7 +410,7 @@ static void MX_ADC1_Init(void)
   }
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_3;
+  sConfig.Channel = ADC_CHANNEL_2;
   sConfig.Rank = ADC_REGULAR_RANK_2;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
@@ -418,7 +418,7 @@ static void MX_ADC1_Init(void)
   }
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_2;
+  sConfig.Channel = ADC_CHANNEL_3;
   sConfig.Rank = ADC_REGULAR_RANK_3;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
@@ -426,7 +426,7 @@ static void MX_ADC1_Init(void)
   }
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_1;
+  sConfig.Channel = ADC_CHANNEL_4;
   sConfig.Rank = ADC_REGULAR_RANK_4;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
@@ -434,7 +434,7 @@ static void MX_ADC1_Init(void)
   }
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_0;
+  sConfig.Channel = ADC_CHANNEL_5;
   sConfig.Rank = ADC_REGULAR_RANK_5;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
@@ -707,29 +707,22 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, Blue_LED_Pin|Green_LED_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, EN_OTG_Pin|ILIM_HIZ_Pin|CELL_1S_DIS_EN_Pin|CELL_2S_DIS_EN_Pin
-                          |CELL_3S_DIS_EN_Pin|CELL_4S_DIS_EN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, EN_OTG_Pin|ILIM_HIZ_Pin|Green_LED_Pin|CELL_1S_DIS_EN_Pin
+                          |CELL_2S_DIS_EN_Pin|CELL_3S_DIS_EN_Pin|CELL_4S_DIS_EN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(Red_LED_GPIO_Port, Red_LED_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(Blue_LED_GPIO_Port, Blue_LED_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, ADC_EN_Pin|PWR_OUT_EN_Pin, GPIO_PIN_SET);
 
-  /*Configure GPIO pins : Blue_LED_Pin Green_LED_Pin */
-  GPIO_InitStruct.Pin = Blue_LED_Pin|Green_LED_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : EN_OTG_Pin Red_LED_Pin ILIM_HIZ_Pin CELL_1S_DIS_EN_Pin
-                           CELL_2S_DIS_EN_Pin CELL_3S_DIS_EN_Pin CELL_4S_DIS_EN_Pin */
-  GPIO_InitStruct.Pin = EN_OTG_Pin|Red_LED_Pin|ILIM_HIZ_Pin|CELL_1S_DIS_EN_Pin
-                          |CELL_2S_DIS_EN_Pin|CELL_3S_DIS_EN_Pin|CELL_4S_DIS_EN_Pin;
+  /*Configure GPIO pins : EN_OTG_Pin Red_LED_Pin ILIM_HIZ_Pin Green_LED_Pin
+                           CELL_1S_DIS_EN_Pin CELL_2S_DIS_EN_Pin CELL_3S_DIS_EN_Pin CELL_4S_DIS_EN_Pin */
+  GPIO_InitStruct.Pin = EN_OTG_Pin|Red_LED_Pin|ILIM_HIZ_Pin|Green_LED_Pin
+                          |CELL_1S_DIS_EN_Pin|CELL_2S_DIS_EN_Pin|CELL_3S_DIS_EN_Pin|CELL_4S_DIS_EN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -740,6 +733,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : Blue_LED_Pin */
+  GPIO_InitStruct.Pin = Blue_LED_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(Blue_LED_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : ADC_EN_Pin PWR_OUT_EN_Pin */
   GPIO_InitStruct.Pin = ADC_EN_Pin|PWR_OUT_EN_Pin;
