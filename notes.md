@@ -101,6 +101,9 @@ vLED_Blinky|Control RGB LED
 vRead_ADC|Read and filter ADCs
 vRegulator|Control regulator and battery charging
 prvUARTCommandConsoleTask|Run CLI console
+
+Threads include delays using vTaskDelay(). These are accurate but do not account for time for the task takes to run. Therefore loop times are slower than the delay implies.
+
 ## ADC input
 adc_filtered_output is constantly updated and visible in debugger
 ADC works by constantly sampling ADCs via DMA, summing into adc_buffer_filtered for ADC_FILTER_SUM_COUNT (380) cycles, then dividing into adc_filtered_output
@@ -135,14 +138,37 @@ RENG is a linear regulator which supplies MOSFET gate voltages. Is can be disabl
 01h [7] = 1 Low Power Mode Enable
 
 ## Regulator control loop
-- Read_Charge_Okay
-- Check for regulator errors
-- Read_Charge_Status (seta regulator.charging_status)
+
+Loop period approximately 330ms (execution + 250ms delay).
+
+Initialisation happens at power-up. If USB power is not connected, charging cycle will not begin.
+
+- Read_Charge_Okay (CHRG_OK pin) - active if USB power is connected
+- Check for regulator I2C errors (REGULATOR_COMMUNICATION_ERROR flag) - haven't seen this happen
+- Read_Charge_Status (I2C read, sets regulator.charging_status) - currently always 0
 - Regulator_Read_ADC (reads regulator ADCs)
-- Control_Charger_Output 90% of the time, 22.5s cycle
+- Control_Charger_Output 90% of the time, approx 30s cycle
+  - Control_Charger_Output
+  - Set_Charge_Voltage - based on cell count
+  - Set_Charge_Current - calcs correct
+  - Turn on regulator output (Regulator_HI_Z)
 - High impedance the other 10%
-- 
+
+When powered from USB PD, regulator ticking sound is in time with control loop. On external power, ticking is faster.
+
 ## Charging cells
+
 Power supply is only supplying 5V
+
 Ticking sound heard from inductor
+
 Discharge resistors for cells 1 & 2 get hot (correctly)
+No faults reported in ChargerStatus Register when ticking occurs
+
+Conditions for charging:
+
+- Get_XT60_Connection_State() == CONNECTED
+- Get_Balance_Connection_State() == CONNECTED
+- Get_Error_State() == 0
+- Get_Input_Power_Ready() == READY
+- Get_Cell_Over_Voltage_State() == 0

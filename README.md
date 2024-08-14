@@ -154,12 +154,14 @@ The compiled binary can be found in: Debug/Lipow.bin
 Run > Debug configurations
 Under C/C++ Application, find .elf file from Debug/
 
-Make sure device is powered
-Click debug button, switch to debug perspective
-Select STM32 (double click)
-Find .elf file in project files (Debug/)
+- Make sure device is powered
+- Click debug button, switch to debug perspective
+- First time:
+  - Select STM32 (double click)
+  - Find .elf file in project files (Debug/)
+- Wait for code to download to device. Console will report 'Download verified successfully'
+- Press F8 (Resume) to run code, or click resume button.
 
-F8 (Resume) to run code, or click resume button.
-To view variables live: Live expressions, add new expression
+To view variables live: Live expressions > add new expression
 
-Clicking stop exits debugger view.
+Clicking 'stop' button exits debugger view.
