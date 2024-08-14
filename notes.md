@@ -17,6 +17,8 @@ Add serial debug statements, find out if any actions coincide with ticking
 
 `Regulator_Read_ADC()` reads regulator ADCs
 
+`Read_Charge_Status()` (seta regulator.charging_status)
+
 `vRegulator` runs as a task and reads regulator status and ADCs, calling `Control_Charger_Output` periodically to control charge parameters
 
 `regulator.charging_status` derived from bit 2 of regulator status word
@@ -31,7 +33,7 @@ usbpd.c|USB power delivery control code
 CLI-commands.c|Command line interface commands
 battery.c|Manages battery state and balancing
 
-# Stats
+# Stats output
 Output of 'stats' command:
 
 Parameter|Source
@@ -68,13 +70,13 @@ Error State Flags           |From 'error_state', see below
 Constant|Defined in|Original|Current|Purpose
 -|-|-|-|-
 ADC_FILTER_SUM_COUNT|adc_interface.h|380|380|Number of ADC samples to combine for filtering
-NON_USB_PD_CHARGE_POWER|bq25703a_regulator.h|2500|500|Sets charge current (mA) from non-PD supply
-MAX_CHARGE_CURRENT_MA|bq25703a_regulator.h|6000|500|Sets charge current (mA) from PD supply
-BATTERY_DISCONNECT_THRESH|bq25703a_regulator.h|4.215|4.215|Per-cell voltage above this threshold interpreted as disconnected charge lead
+NON_USB_PD_CHARGE_POWER|bq25703a_regulator.h|2500|200|Sets charge current (mA) from non-PD supply
+MAX_CHARGE_CURRENT_MA|bq25703a_regulator.h|6000|200|Sets charge current (mA) from PD supply
+BATTERY_DISCONNECT_THRESH|bq25703a_regulator.h|4.215|4.215|Average cell voltage at charge output above this threshold interpreted as disconnected charge lead
 MIN_CELL_V_FOR_BALANCING|battery.h|3.0|3.0|Balancing not allowed if any cell is under this voltage
-CELL_VOLTAGE_TO_ENABLE_CHARGING|battery.h|4.18|4.08|Charging only starts if average cell voltage below this
+CELL_VOLTAGE_TO_ENABLE_CHARGING|battery.h|4.18|4.08|Charging only starts if average cell voltage is below this
 CELL_OVER_VOLTAGE_ENABLE_DISCHARGE|battery.h|4.205|4.105|Discharge any cells above this voltage
-CELL_OVER_VOLTAGE_DISABLE_CHARGING|battery.h|4.22|4.12|Cell overvoltage, stop charging
+CELL_OVER_VOLTAGE_DISABLE_CHARGING|battery.h|4.22|4.12|Stop charging if any cells above this voltage
 
 # Error flags
 Error flags stored in `error_state`, accessed via Get_Error_State() and 'stats' output.
@@ -120,11 +122,26 @@ Idea: Read status byte for debugging (only 1 bit currently used)
 
 Use serial debug statements to report charge strategy
 
+## USB PD
+
+The circuit includes 'dead battery functionality' described in ST application note AN5255. This is why the DBCCn pins are connected to corresponding CCn pins.
+
 # Regulator notes
 
 PROCHOT is for warning the host system when certain current/voltage thresholds are exceeded
 
+RENG is a linear regulator which supplies MOSFET gate voltages. Is can be disabled (to save power) via EN_REGN
 
+01h [7] = 1 Low Power Mode Enable
+
+## Regulator control loop
+- Read_Charge_Okay
+- Check for regulator errors
+- Read_Charge_Status (seta regulator.charging_status)
+- Regulator_Read_ADC (reads regulator ADCs)
+- Control_Charger_Output 90% of the time, 22.5s cycle
+- High impedance the other 10%
+- 
 ## Charging cells
 Power supply is only supplying 5V
 Ticking sound heard from inductor

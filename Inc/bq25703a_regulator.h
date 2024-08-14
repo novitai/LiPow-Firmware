@@ -89,11 +89,11 @@ extern "C" {
 
 #define IIN_ADC_SCALE				(uint32_t)(0.050 * REG_ADC_MULTIPLIER)
 
-#define MAX_CHARGE_CURRENT_MA		500  // Previously 6000
+#define MAX_CHARGE_CURRENT_MA		200  // Previously 6000
 #define ASSUME_EFFICIENCY			0.85f
 #define BATTERY_DISCONNECT_THRESH	(uint32_t)(4.215 * REG_ADC_MULTIPLIER)
 #define MAX_CHARGING_POWER			60000
-#define NON_USB_PD_CHARGE_POWER		500  // Previously 2500
+#define NON_USB_PD_CHARGE_POWER		200  // Previously 2500
 
 #define TEMP_THROTTLE_THRESH_C		40
 

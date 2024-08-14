@@ -467,7 +467,7 @@ void Control_Charger_Output() {
 
 	TickType_t xDelay = 500 / portTICK_PERIOD_MS;
 
-	//Charging for USB PD enabled supplies
+	// Charging for USB PD enabled supplies
 	if ((Get_XT60_Connection_State() == CONNECTED) && (Get_Balance_Connection_State() == CONNECTED) && (Get_Error_State() == 0) && (Get_Input_Power_Ready() == READY) && (Get_Cell_Over_Voltage_State() == 0)) {
 
 		// XT60 connected, balance lead connected, no error, input PD power ready, no cell over voltage
@@ -480,7 +480,7 @@ void Control_Charger_Output() {
 
 		Regulator_HI_Z(0);
 
-		//Check if XT60 was disconnected
+		// Check if XT60 was disconnected
 		if (regulator.vbat_voltage > (BATTERY_DISCONNECT_THRESH * Get_Number_Of_Cells())) {
 			Regulator_HI_Z(1);
 			vTaskDelay(xDelay*2);
@@ -537,7 +537,7 @@ void vRegulator(void const *pvParameters) {
 
 	for (;;) {
 
-		//Check if power into regulator is okay
+		// Check if power into regulator is okay
 		if (Read_Charge_Okay() != 1) {
 			Set_Error_State(VOLTAGE_INPUT_ERROR);
 		}
@@ -545,7 +545,7 @@ void vRegulator(void const *pvParameters) {
 			Clear_Error_State(VOLTAGE_INPUT_ERROR);
 		}
 
-		//Check if STM32G0 can communicate with regulator
+		// Check if STM32G0 can communicate with regulator
 		if ((Get_Error_State() & REGULATOR_COMMUNICATION_ERROR) == REGULATOR_COMMUNICATION_ERROR) {
 			regulator.connected = 0;
 		}
