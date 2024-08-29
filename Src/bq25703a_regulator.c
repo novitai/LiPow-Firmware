@@ -391,23 +391,31 @@ void Set_Charge_Voltage(uint8_t number_of_cells) {
 	
 	switch (number_of_cells) {
 		case 1:
+			// Set max voltage to 4.2V
 			max_charge_register_1_value = MAX_VOLT_ADD_4096_MV;
 			max_charge_register_2_value = MAX_VOLT_ADD_64_MV | MAX_VOLT_ADD_32_MV;
+			// Set min voltage to 2.8V
 			minimum_system_voltage_value = MIN_VOLT_ADD_2048_MV | MIN_VOLT_ADD_512_MV | MIN_VOLT_ADD_256_MV;
 			break;
 		case 2:
+			// Set max voltage to 8.4V
 			max_charge_register_1_value = MAX_VOLT_ADD_8192_MV;
 			max_charge_register_2_value = MAX_VOLT_ADD_128_MV | MAX_VOLT_ADD_64_MV | MAX_VOLT_ADD_16_MV;
+			// Set min voltage to 5.6V
 			minimum_system_voltage_value = MIN_VOLT_ADD_4096_MV | MIN_VOLT_ADD_1024_MV | MIN_VOLT_ADD_512_MV;
 			break;
 		case 3:
+			// Set max voltage to 12.6V
 			max_charge_register_1_value = MAX_VOLT_ADD_8192_MV | MAX_VOLT_ADD_4096_MV | MAX_VOLT_ADD_256_MV;
 			max_charge_register_2_value = MAX_VOLT_ADD_32_MV | MAX_VOLT_ADD_16_MV;
+			// Set min voltage to 8.4V
 			minimum_system_voltage_value = MIN_VOLT_ADD_8192_MV |  MIN_VOLT_ADD_256_MV;
 			break;
 		case 4:
+			// Set max voltage to 16.8V
 			max_charge_register_1_value = MAX_VOLT_ADD_16384_MV | MAX_VOLT_ADD_256_MV;
 			max_charge_register_2_value = MAX_VOLT_ADD_128_MV | MAX_VOLT_ADD_32_MV;
+			// Set min voltage to 11.2V
 			minimum_system_voltage_value = MIN_VOLT_ADD_8192_MV | MIN_VOLT_ADD_2048_MV | MIN_VOLT_ADD_1024_MV;
 			break;
 		default:
@@ -537,7 +545,7 @@ void vRegulator(void const *pvParameters) {
 
 	for (;;) {
 
-		// Check if power into regulator is okay
+		// Check if power into regulator is okay by reading CHRG_OK pin (fails if USB power is not connected)
 		if (Read_Charge_Okay() != 1) {
 			Set_Error_State(VOLTAGE_INPUT_ERROR);
 		}

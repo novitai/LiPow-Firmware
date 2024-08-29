@@ -17,7 +17,7 @@ Add serial debug statements, find out if any actions coincide with ticking
 
 `Regulator_Read_ADC()` reads regulator ADCs
 
-`Read_Charge_Status()` (seta regulator.charging_status)
+`Read_Charge_Status()` (from regulator.charging_status, from CHARGE_STATUS_ADDR:CHARGING_ENABLED_MASK = ChargerStatus:IN_FCHRG)
 
 `vRegulator` runs as a task and reads regulator status and ADCs, calling `Control_Charger_Output` periodically to control charge parameters
 
@@ -145,8 +145,10 @@ Initialisation happens at power-up. If USB power is not connected, charging cycl
 
 - Read_Charge_Okay (CHRG_OK pin) - active if USB power is connected
 - Check for regulator I2C errors (REGULATOR_COMMUNICATION_ERROR flag) - haven't seen this happen
-- Read_Charge_Status (I2C read, sets regulator.charging_status) - currently always 0
-- Regulator_Read_ADC (reads regulator ADCs)
+- Read_Charge_Status (read ChargerStatus:IN_FCHRG via I2C) - currently always 0
+- Regulator_Read_ADC (reads regulator ADCs via I2C)
+  - Battery Charge Current (ADCIBAT)
+  - Input Current (ADCIINCMPIN)
 - Control_Charger_Output 90% of the time, approx 30s cycle
   - Control_Charger_Output
   - Set_Charge_Voltage - based on cell count
@@ -158,13 +160,6 @@ When powered from USB PD, regulator ticking sound is in time with control loop. 
 
 ## Charging cells
 
-Power supply is only supplying 5V
-
-Ticking sound heard from inductor
-
-Discharge resistors for cells 1 & 2 get hot (correctly)
-No faults reported in ChargerStatus Register when ticking occurs
-
 Conditions for charging:
 
 - Get_XT60_Connection_State() == CONNECTED
@@ -172,3 +167,49 @@ Conditions for charging:
 - Get_Error_State() == 0
 - Get_Input_Power_Ready() == READY
 - Get_Cell_Over_Voltage_State() == 0
+
+Ticking sound analysed with scope.
+
+- USB power starts at 5V, comms with regulator start
+- MCU negotites higher voltage, voltage climbs to approx 19.7V, indicating current draw
+- Comms with regulator continue
+- 820ms later, brief rise in VUSB to 20.7V, indicating drop in load, not coinciding with I2C comms
+- 5ms later, all MOSFETs on, VUSB crashes to 3.3V for around 0.5ms
+- CHRG_OK pulled low as a result, audible tick from USB connector
+- VUSB recovers to 21V then stabilises to 20.2V within 5ms
+- CHRG_OK returns high after allotted delay
+- VUSB maintains around 20.2V indicating low current draw
+- Voltage crash and ticking continues in time with regulator control loop, coinciding with Control_Charger_Output()
+
+Tested these registers while ticking occurs, nothing anomalous found:
+
+- ChargerStatus (20h)
+- ChargeOption2 (33h) 
+
+### 2S test
+
+- Battery current flow starts at -3mA, increases to -20mA (flow *from* battery) when 'charging' begins
+- Circuit draws approx 20mA when disconnected from battery
+- Charge current is set to 200mA in program
+- STM requests and usually gets 9V
+- Circuit consumes 4.5W from USB, board gets hot around Q1, Q4
+- Approv 1.75V dropped over Q1
+- Voltage ripple measured at 200kHz, stated switching frequency is 800 kHz but regulator decreases switching frequency to improve efficiency (8.3.4.3)
+- Voltage reaching 3.3V regulator approx 0.5V less than Vusb
+- Hypothesis: buck converter is not functioning, circuit drains power from both battery and USB when running
+
+# PCB notes
+
+Component selection criteria are in section 9 of the bq25703A datasheet.
+
+## Inductor
+
+Property|New|
+-|-
+DC res 15|11.5
+Saturation current|8-10|8
+JLC|C408445|C285617
+
+## MOSFETS
+
+30V or higher
