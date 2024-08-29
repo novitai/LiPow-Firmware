@@ -18,6 +18,9 @@ extern I2C_HandleTypeDef hi2c1;		// I2C handle
 
 uint16_t testword;  // [PR] test byte readable by debugger
 
+// Serial debug output:
+// Status,Vusb,Vbat,Vsys,Icharge,Iinput,CState,Connections,CellCount,charge_current_limit,charge_current,TimerStatus,C4grow,C3,C2,C1,Balance
+
 /* Private typedef -----------------------------------------------------------*/
 struct Regulator {
 	uint8_t connected;
@@ -250,6 +253,15 @@ void Read_Charge_Status() {
 	else {
 		regulator.charging_status = 0;
 	}
+	
+	// Output CHARGE_STATUS_ADDR register (21/20h)
+	//printf("s%08b %08b,", data[1], data[0]);
+
+	// Output ChargeOption2 register (33/32h)
+	I2C_Read_Register(CHARGE_OPTION_2_ADDR, data, 2);
+	printf("s%08b %08b,", data[1], data[0]);
+
+
 }
 
 /**
@@ -347,6 +359,8 @@ void Set_Charge_Current(uint32_t charge_current_limit) {
 
 	uint32_t charge_current = 0;
 
+	printf("i%u,", charge_current_limit);
+
 	if (charge_current_limit > MAX_CHARGE_CURRENT_MA) {
 		charge_current_limit = MAX_CHARGE_CURRENT_MA;
 	}
@@ -360,6 +374,7 @@ void Set_Charge_Current(uint32_t charge_current_limit) {
 	if (charge_current > 128) {
 		charge_current = 128;
 	}
+	printf("%u,", charge_current * 64); // Charge current
 
 	// 0-128 which remaps from 64mA-8.128A. 7 bit value.
 	uint8_t charge_current_register_1_value = 0;
@@ -369,6 +384,9 @@ void Set_Charge_Current(uint32_t charge_current_limit) {
 		charge_current_register_1_value = (charge_current >> 2);
 		charge_current_register_2_value = (charge_current << 6);
 	}
+
+	// Display current setting registers
+	//printf("r:%u,%u,", charge_current_register_1_value, charge_current_register_2_value);
 
 	I2C_Write_Two_Byte_Register(CHARGE_CURRENT_ADDR, charge_current_register_2_value, charge_current_register_1_value);
 	//printf("charge_current_limit: %d\r\n", charge_current_limit);
@@ -387,7 +405,7 @@ void Set_Charge_Voltage(uint8_t number_of_cells) {
 
 	uint8_t	minimum_system_voltage_value = MIN_VOLT_ADD_1024_MV;
 
-	printf("n%u", number_of_cells);
+	printf("%uS,", number_of_cells);
 	
 	switch (number_of_cells) {
 		case 1:
@@ -475,11 +493,18 @@ void Control_Charger_Output() {
 
 	TickType_t xDelay = 500 / portTICK_PERIOD_MS;
 
+	//if (Get_XT60_Connection_State() == CONNECTED)    {printf("a");}
+	//if (Get_Balance_Connection_State() == CONNECTED) {printf("b");}
+	//if (Get_Error_State() == 0)                      {printf("c");}
+	//if (Get_Input_Power_Ready() == READY)            {printf("d");}
+	//if (Get_Cell_Over_Voltage_State() == 0)          {printf("e");}
+
 	// Charging for USB PD enabled supplies
 	if ((Get_XT60_Connection_State() == CONNECTED) && (Get_Balance_Connection_State() == CONNECTED) && (Get_Error_State() == 0) && (Get_Input_Power_Ready() == READY) && (Get_Cell_Over_Voltage_State() == 0)) {
 
 		// XT60 connected, balance lead connected, no error, input PD power ready, no cell over voltage
 
+		printf("Y,");
 		Set_Charge_Voltage(Get_Number_Of_Cells());
 
 		uint32_t charging_current_ma = ((Calculate_Max_Charge_Power()) / (float)(Get_Battery_Voltage() / BATTERY_ADC_MULTIPLIER));
@@ -499,6 +524,7 @@ void Control_Charger_Output() {
 	else if ((Get_XT60_Connection_State() == CONNECTED) && (Get_Balance_Connection_State() == CONNECTED) && (Get_Error_State() == 0) && (Get_Input_Power_Ready() == NO_USB_PD_SUPPLY) && (Get_Cell_Over_Voltage_State() == 0)) {
 
 		// XT60 connected, balance lead connected, no error, power not PD, no cell over voltage
+		printf("N,");
 
 		Set_Charge_Voltage(Get_Number_Of_Cells());
 
@@ -513,6 +539,7 @@ void Control_Charger_Output() {
 
 		// Charge conditions not met, turn charge output off
 
+		printf("nc,");
 		Regulator_HI_Z(1);
 		Set_Charge_Voltage(0);
 		Set_Charge_Current(0);
@@ -557,23 +584,36 @@ void vRegulator(void const *pvParameters) {
 		// Check if STM32G0 can communicate with regulator
 		if ((Get_Error_State() & REGULATOR_COMMUNICATION_ERROR) == REGULATOR_COMMUNICATION_ERROR) {
 			regulator.connected = 0;
+			printf("Reg error!");
 		}
 
-		Read_Charge_Status();
+		Read_Charge_Status();  // Currently returns 0 whether USB powered or not
 
 		Regulator_Read_ADC();
+		printf("%u,%u,%u,%u,%u,", Get_Input_Voltage(), regulator.vbat_voltage, regulator.vsys_voltage, regulator.charge_current, regulator.input_current);
+		if (regulator.charging_status) {printf("C,");} else {printf("n,");};  // Debug CState (charging state)
 
 		timer_count++;
 		if (timer_count < 90) {
 			Control_Charger_Output();
+			printf("C,");               // Charge cycle state: Charge
 		}
 		else if (timer_count > 100){
 			timer_count = 0;
+			printf(",,,,R,");           // Charge cycle state: Recover
 		}
 		else {
 			Regulator_HI_Z(1);
+			printf(",,,,R,");           // Charge cycle state: Recover
 		}
 
+		// Cell voltages
+		printf("%.3f,", (float)Get_Cell_Voltage(3)/BATTERY_ADC_MULTIPLIER);
+		printf("%.3f,", (float)Get_Cell_Voltage(2)/BATTERY_ADC_MULTIPLIER);
+		printf("%.3f,", (float)Get_Cell_Voltage(1)/BATTERY_ADC_MULTIPLIER);
+		printf("%.3f,", (float)Get_Cell_Voltage(0)/BATTERY_ADC_MULTIPLIER);
+ 		printf("B%04b", Get_Balancing_State());    // Cell balancing state
+		printf("\r\n");
 		vTaskDelay(xDelay);
 	}
 }

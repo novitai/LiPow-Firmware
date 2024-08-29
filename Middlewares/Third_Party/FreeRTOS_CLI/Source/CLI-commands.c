@@ -205,7 +205,8 @@ static BaseType_t prvStatsCommand(char *pcWriteBuffer, size_t xWriteBufferLen, c
 	sprintf(pcWriteBuffer,
 			"Variable                    Value\r\n"
 			"************************************************\r\n"
-			"Battery Voltage MCU(V)       %.3f\r\n"
+			"USB Voltage requested (V)    %.3f\r\n"
+			"Battery Voltage MCU (V)      %.3f\r\n"
 			"Battery Voltage Reg (V)      %.3f\r\n"
 			"Charging Current (A)         %.3f\r\n"
 			"Charging Power (W)           %.3f\r\n"
@@ -231,6 +232,7 @@ static BaseType_t prvStatsCommand(char *pcWriteBuffer, size_t xWriteBufferLen, c
 			"Input Power (W)              %.3f\r\n"
 			"Efficiency (OutputW/InputW)  %.3f\r\n"
 			"Error State Flags            %u\r\n",
+			(float)Get_Input_Voltage()/1000,
 			battery_voltage,
 			regulator_vbat_voltage,
 			charge_current,

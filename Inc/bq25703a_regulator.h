@@ -92,7 +92,7 @@ extern "C" {
 
 #define IIN_ADC_SCALE				(uint32_t)(0.050 * REG_ADC_MULTIPLIER)
 
-#define MAX_CHARGE_CURRENT_MA		200  // Previously 6000
+#define MAX_CHARGE_CURRENT_MA		400  // Previously 6000
 #define ASSUME_EFFICIENCY			0.85f
 #define BATTERY_DISCONNECT_THRESH	(uint32_t)(4.215 * REG_ADC_MULTIPLIER)
 #define MAX_CHARGING_POWER			60000

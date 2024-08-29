@@ -38,6 +38,7 @@ Output of 'stats' command:
 
 Parameter|Source
 -|-
+USB Voltage (V)             |Voltage requested from USB PD source
 Battery Voltage MCU(V)      |ADC VBat
 Battery Voltage Reg (V)     |Output voltage measured by regulator
 Charging Current (A)        |Output current measured by regulator
