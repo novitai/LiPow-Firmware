@@ -40,6 +40,7 @@ void Balance_Battery()
 {
 	if ( (battery_state.balance_port_connected == CONNECTED) && (Get_Error_State() == 0) ) {
 
+		// Find min and max cell voltages
 		uint32_t min_cell_voltage = Get_Cell_Voltage(0);
 		uint32_t max_cell_voltage = Get_Cell_Voltage(0);
 		for(int i = 1; i < battery_state.number_of_cells; i++) {
@@ -51,16 +52,17 @@ void Balance_Battery()
 			}
 		}
 
+		// Scale up the balancing thresholds under certain conditions, to allow faster charging
 		float scalar = 0.0f;
-
-		// Scale the balancing thresholds tighter as the battery voltage increases. Allows for faster charging.
 		if (battery_state.xt60_connected == CONNECTED) {
+			// If XT60 is connected, allow larger voltage differences that tighten as the battery voltage increases.
 			scalar = (float)CELL_BALANCING_SCALAR_MAX * (1.0f - (((float)max_cell_voltage - (float)MIN_CELL_V_FOR_BALANCING)/((float)CELL_VOLTAGE_TO_ENABLE_CHARGING - (float)MIN_CELL_V_FOR_BALANCING)));
 			if (scalar < 1.0f) {
 				scalar = 1.0f;
 			}
 		}
 		else {
+			// If just the balance port is connected, use the tightest balancing thresholds
 			scalar = 1.0f;
 		}
 
@@ -73,14 +75,14 @@ void Balance_Battery()
 			battery_state.balancing_enabled = 0;
 		}
 
-		//Check each cell voltage. If XT60 is connected, then allow larger voltage differences that tighten as the battery voltage increases.
-		//If just the balance port is connected, then use the tightest balancing thresholds
-		//If a cell is over CELL_OVER_VOLTAGE_ENABLE_DISCHARGE, then the discharging resistor will turn on
+		// Check each cell and apply balancing as needed
 		for(int i = 0; i < battery_state.number_of_cells; i++) {
 			if ( (battery_state.balancing_enabled == 1) && ((Get_Cell_Voltage(i) - min_cell_voltage) >= ((float)CELL_BALANCING_HYSTERESIS_V * scalar))) {
+				// Cell meets criteria for balancing
 				battery_state.cell_balance_bitmask |= (1<<i);
 			}
 			else if (Get_Cell_Voltage(i) >= CELL_OVER_VOLTAGE_ENABLE_DISCHARGE) {
+				// Cell is over max voltage, discharge regardless of balancing algorithm
 				battery_state.cell_balance_bitmask |= (1<<i);
 			}
 			else {

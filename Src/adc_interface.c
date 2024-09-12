@@ -258,7 +258,7 @@ uint8_t Calibrate_ADC(float reference_voltage_mv) {
 
 void vRead_ADC(void const *pvParameters) {
 	// calibrate ADC
-	vTaskDelay(500 / portTICK_PERIOD_MS);
+	vTaskDelay(500 / portTICK_PERIOD_MS); // 500ms delay
 	while (HAL_ADCEx_Calibration_Start(&hadc1) != HAL_OK);
 	vTaskDelay(500 / portTICK_PERIOD_MS);
 	vrefint_cal = (uint32_t)(*VREFINT_CAL_ADDR); // VREFINT calibration value

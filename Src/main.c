@@ -805,7 +805,7 @@ void vLED_Blinky(void const *pvParameters) {
 
 			for (int i = 0; i < (Get_Error_State()); i++) {
         // LED flash red
-				vTaskDelay(200 / portTICK_PERIOD_MS);
+				vTaskDelay(200 / portTICK_PERIOD_MS); // 200ms delay
 				HAL_GPIO_WritePin(Red_LED_GPIO_Port, Red_LED_Pin, GPIO_PIN_RESET);
 				vTaskDelay(200 / portTICK_PERIOD_MS);
 				HAL_GPIO_WritePin(Red_LED_GPIO_Port, Red_LED_Pin, GPIO_PIN_SET);

@@ -23,6 +23,14 @@ Add serial debug statements, find out if any actions coincide with ticking
 
 `regulator.charging_status` derived from bit 2 of regulator status word
 
+Process|Happens inside|Frequency|When
+-|-|-|-
+ADC sampling|`HAL_ADC_ConvCpltCallback`|12kHz|Every time a reading is taken via DMA
+Handling of filtered ADC values|`vRead_ADC` thread|30Hz|Each time a filtered sample is completed
+Balancing calculations and actions|`vRead_ADC` via `Balance_Battery`|30Hz|
+Regulator control|`vRegulator`|3Hz|In endless loop with delays
+Charging control
+
 # Files
 
 File|Purpose
@@ -106,25 +114,51 @@ prvUARTCommandConsoleTask|Run CLI console
 Threads include delays using vTaskDelay(). These are accurate but do not account for time for the task takes to run. Therefore loop times are slower than the delay implies.
 
 ## ADC input
-adc_filtered_output is constantly updated and visible in debugger
-ADC works by constantly sampling ADCs via DMA, summing into adc_buffer_filtered for ADC_FILTER_SUM_COUNT (380) cycles, then dividing into adc_filtered_output
-Assigned ADC pin names aren't used by code, rather their positions in the DMA read cycle
-ADC variables are set directly from adc_filtered_output
 
-vRead_ADC() is where ADC channels are converted to variables
+ADC works by constantly sampling ADCs via DMA, summing into adc_buffer_filtered for ADC_FILTER_SUM_COUNT (380) cycles, then dividing into adc_filtered_output, which is constantly updated and visible in the debugger.
+
+Assigned ADC pins aren't referred to by name in the code, but by their positions in the DMA read cycle (see below for setup)
+
+ADC-derived variables such as cell voltages are set directly from elements in adc_filtered_output:
+
+Element|DMA rank|Content
+-|-|-
+0|1|Battery voltage
+1|2|Cell 1 voltage
+2|3|Cell 2 voltage
+3|4|Cell 3 voltage
+4|5|Cell 4 voltage
+5|6|MCU temperature
+6|7|VDDa (Vrefint)
+7|8|Unused
+
+Filtered data is produced at around 30Hz. vRead_ADC() is where filtered ADC channels are copied to variables. It runs as a thread, and waits for a notification from the ADC reading code to indicate that new filtered data has arrived.
+
+### ADC setup
 
 In the .ioc file, analog channels are set up in:
-Analog > ADC1 > Configuration > Parameter Settings > X
 
-Consider using channel ranks defined automatically in main.c
+Analog > ADC1 > Configuration > Parameter Settings > ADC_Regular_ConversionMode > Rank 1-8
 
-When testing, remember to connect VBATT and 4S
+'Rank' positions 1-5 relate to array positions 0-4 in adc_filtered_output Consider using channel ranks defined automatically in main.c
 
-Overcharging likely happening because voltage/current sensing reads zero. This is being read directly from the regulator IC.
 
-Idea: Read status byte for debugging (only 1 bit currently used)
+## Balancing
 
-Use serial debug statements to report charge strategy
+Cell balancing is controlled via:
+
+- vRead_ADC - reads filtered ADC data
+- Battery_Connection_State - Determines the state of connections, safety checks
+- Balance_Battery - called if battery not charging, determines if balancing is needed, sets balance bitmask
+- Balancing_GPIO_Control() - sets balance GPIOs
+
+vRead_ADC is run as a thread, and contains an infinite loop, which executes every time ADC new filtered ADC data is received, and calls the other functions above. This means balancing runs at 30Hz when it is active.
+
+Balance resistors are 47R, meaning they drain the cells at around 85mA, or 1/3W. This is enough to affect the voltage readings, which appears to cause feedback, manifesting in rapid switching of balance outputs at 15Hz.
+
+When cell voltages are close, balancing oscillates during charge pauses, settling on a random value as charging restarts.
+
+Try: Run balancing algorithm at end of charge-rest cycle, rather than every few ms.
 
 ## USB PD
 
@@ -153,13 +187,25 @@ Initialisation happens at power-up. If USB power is not connected, charging cycl
 - Control_Charger_Output 90% of the time, approx 30s cycle
   - Control_Charger_Output
   - Set_Charge_Voltage - based on cell count
+  - Calculate_Max_Charge_Power
   - Set_Charge_Current - calcs correct
   - Turn on regulator output (Regulator_HI_Z)
 - High impedance the other 10%
 
 When powered from USB PD, regulator ticking sound is in time with control loop. On external power, ticking is faster.
 
-## Charging cells
+# Testing
+
+When testing, remember to connect VBATT and 4S
+
+Overcharging likely happening because voltage/current sensing reads zero. This is being read directly from the regulator IC.
+
+Idea: Read status byte for debugging (only 1 bit currently used)
+
+Use serial debug statements to report charge strategy
+
+
+## Charging cells test
 
 Conditions for charging:
 
@@ -203,6 +249,11 @@ Tested these registers while ticking occurs, nothing anomalous found:
 
 Component selection criteria are in section 9 of the bq25703A datasheet.
 
+## Ideas
+
+- Improve heat transfer with vias
+- Change balance resistors
+
 ## Inductor
 
 Property|New|
@@ -214,3 +265,10 @@ JLC|C408445|C285617
 ## MOSFETS
 
 30V or higher
+
+# Current status
+
+Balancing causes voltage readings to fluctuate significantly. Possible solutions:
+
+- Change balancing strategy to avoid inferring wrong cell voltages
+- Increase balance resistors

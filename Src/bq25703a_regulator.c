@@ -493,12 +493,6 @@ void Control_Charger_Output() {
 
 	TickType_t xDelay = 500 / portTICK_PERIOD_MS;
 
-	//if (Get_XT60_Connection_State() == CONNECTED)    {printf("a");}
-	//if (Get_Balance_Connection_State() == CONNECTED) {printf("b");}
-	//if (Get_Error_State() == 0)                      {printf("c");}
-	//if (Get_Input_Power_Ready() == READY)            {printf("d");}
-	//if (Get_Cell_Over_Voltage_State() == 0)          {printf("e");}
-
 	// Charging for USB PD enabled supplies
 	if ((Get_XT60_Connection_State() == CONNECTED) && (Get_Balance_Connection_State() == CONNECTED) && (Get_Error_State() == 0) && (Get_Input_Power_Ready() == READY) && (Get_Cell_Over_Voltage_State() == 0)) {
 
