@@ -79,20 +79,15 @@ extern "C" {
 
 #define VBUS_ADC_SCALE				(uint32_t)( 0.064 * REG_ADC_MULTIPLIER )
 #define VBUS_ADC_OFFSET				(uint32_t)( 3.2 * REG_ADC_MULTIPLIER )
-
 #define PSYS_ADC_SCALE				(uint32_t)( 0.012 * REG_ADC_MULTIPLIER )
-
 #define VSYS_ADC_SCALE				(uint32_t)(0.064 * REG_ADC_MULTIPLIER)
 #define VSYS_ADC_OFFSET				(uint32_t)(2.88 * REG_ADC_MULTIPLIER)
-
 #define VBAT_ADC_SCALE				(uint32_t)(0.064 * REG_ADC_MULTIPLIER)
 #define VBAT_ADC_OFFSET				(uint32_t)(2.88 * REG_ADC_MULTIPLIER)
-
 #define ICHG_ADC_SCALE				(uint32_t)(0.064 * REG_ADC_MULTIPLIER)
-
 #define IIN_ADC_SCALE				(uint32_t)(0.050 * REG_ADC_MULTIPLIER)
 
-#define MAX_CHARGE_CURRENT_MA		400  // Previously 6000
+#define MAX_CHARGE_CURRENT_MA		200  // Previously 6000
 #define ASSUME_EFFICIENCY			0.85f
 #define BATTERY_DISCONNECT_THRESH	(uint32_t)(4.215 * REG_ADC_MULTIPLIER)
 #define MAX_CHARGING_POWER			60000

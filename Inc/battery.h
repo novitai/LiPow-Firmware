@@ -36,6 +36,10 @@ extern "C" {
 
 void Battery_Connection_State();
 
+void Balance_Battery();
+
+void Balance_Off();
+
 uint8_t Get_XT60_Connection_State(void);
 
 uint8_t Get_Balance_Connection_State(void);

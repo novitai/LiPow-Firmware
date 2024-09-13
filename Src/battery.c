@@ -28,7 +28,6 @@ volatile struct Battery battery_state;
 static uint8_t cell_connected_bitmask = 0;
 
 /* Private function prototypes -----------------------------------------------*/
-void Balance_Battery(void);
 void Balance_Connection_State(void);
 void Balancing_GPIO_Control(uint8_t cell_balancing_gpio_bitmask);
 void MCU_Temperature_Safety_Check(void);
@@ -90,12 +89,24 @@ void Balance_Battery()
 			}
 		}
 		Balancing_GPIO_Control(battery_state.cell_balance_bitmask);
+		//printf("@");
 
 	}
 	else {
 		Balancing_GPIO_Control(0);
+		battery_state.cell_balance_bitmask = 0;
 		battery_state.balancing_enabled = 0;
 	}
+}
+
+/**
+ * @brief Turn balancing outputs off
+ */
+void Balance_Off()
+{
+	Balancing_GPIO_Control(0);
+	battery_state.cell_balance_bitmask = 0;
+	battery_state.balancing_enabled = 0;
 }
 
 /**
@@ -219,7 +230,7 @@ void Battery_Connection_State()
 
 	//Only update the balancing state if charging is off
 	if (Get_Regulator_Charging_State() == 0) {
-		Balance_Battery();
+		//Balance_Battery();
 	}
 
 	if ((battery_state.xt60_connected == CONNECTED) && (battery_state.balance_port_connected == CONNECTED)){
