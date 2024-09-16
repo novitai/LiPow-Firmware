@@ -39,7 +39,8 @@ static volatile uint8_t cal_present;
 /* Private function prototypes -----------------------------------------------*/
 uint8_t Set_Battery_Voltage(uint32_t adc_reading);
 uint8_t Set_Cell_Voltage(uint8_t cell_number, uint32_t adc_reading);
-uint8_t Set_MCU_Temperature(uint32_t adc_reading);
+//uint8_t Set_MCU_Temperature(uint32_t adc_reading);
+uint8_t Set_MCU_Temperature(uint32_t adc_reading, uint32_t ref_reading);
 uint8_t Set_VDDa(uint32_t adc_reading);
 uint8_t Read_Scalars_From_Flash(void);
 
@@ -188,15 +189,16 @@ int32_t Get_MCU_Temperature(void) {
 }
 
 /**
- * @brief  Sets the mcu junction temperature that was read in from the ADC
- * @param  temperature_c: MCU junction temperature in celcius
+ * @brief  Calculates the mcu junction temperature (C) that was read in from the ADC
+ * @param  adc_reading: ADC value representing the MCU junction temperature
+ * @param  ref_reading: ADC value representing the reference voltage
  * @retval uint8_t 1 if successful, 0 if error
  */
-uint8_t Set_MCU_Temperature(uint32_t adc_reading) {
-	if ((adc_reading < 0) || (adc_reading > 4095)) {
+uint8_t Set_MCU_Temperature(uint32_t adc_reading, uint32_t ref_reading) {
+	if ((adc_reading > 4095) || (ref_reading > 4095)) {
 		return 0;
 	} else {
-		adc_values.vrefint = __HAL_ADC_CALC_VREFANALOG_VOLTAGE(adc_filtered_output[6], ADC_RESOLUTION_12B);
+		adc_values.vrefint = __HAL_ADC_CALC_VREFANALOG_VOLTAGE(ref_reading, ADC_RESOLUTION_12B);
 		adc_values.temperature = __HAL_ADC_CALC_TEMPERATURE(adc_values.vrefint, adc_reading, ADC_RESOLUTION_12B);
 	}
 	return 1;
@@ -216,7 +218,7 @@ uint32_t Get_VDDa() {
  * @retval uint8_t 1 if successful, 0 if error
  */
 uint8_t Set_VDDa(uint32_t adc_reading) {
-	if ((adc_reading < 0) || (adc_reading > 4095)) {
+	if (adc_reading > 4095) {
 		return 0;
 	} else {
 		adc_values.vdda = 3 * ((vrefint_cal * BATTERY_ADC_MULTIPLIER) / adc_reading);
@@ -290,8 +292,10 @@ void vRead_ADC(void const *pvParameters) {
 				Set_Cell_Voltage(i, adc_filtered_output[i+1]);
 			}
 
-			Set_MCU_Temperature(adc_filtered_output[5]);
+			// Calculate temperature from Temp sensor and Vrefint
+			Set_MCU_Temperature(adc_filtered_output[5], adc_filtered_output[6]);
 
+			// Calculate VDDa from Vrefint
 			Set_VDDa(adc_filtered_output[6]);
 
 			/* Determines battery connection state and performs balancing */

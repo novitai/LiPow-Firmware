@@ -19,7 +19,7 @@ extern I2C_HandleTypeDef hi2c1;		// I2C handle
 uint16_t testword;  // [PR] test byte readable by debugger
 
 // Serial debug output:
-// ChargeState,Timer,Errors,Vusb,Vbat,Vsys,Icharge,Iinput,CStatus,Connections,CellCount,charge_current_limit,current_setting,C4,C3,C2,C1,Balance
+// ChargeState,Timer,Errors,Vusb,Vbat,Vsys,Icharge,Iinput,ChStatus,ConnState,CellCount,charge_current_limit,current_setting,C4,C3,C2,C1,Balance
 
 /* Private typedef -----------------------------------------------------------*/
 struct Regulator {

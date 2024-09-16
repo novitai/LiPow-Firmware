@@ -81,7 +81,7 @@ Constant|Defined in|Original|Current|Purpose
 ADC_FILTER_SUM_COUNT|adc_interface.h|380|380|Number of ADC samples to combine for filtering
 NON_USB_PD_CHARGE_POWER|bq25703a_regulator.h|2500|200|Sets charge current (mA) from non-PD supply
 MAX_CHARGE_CURRENT_MA|bq25703a_regulator.h|6000|200|Sets charge current (mA) from PD supply
-BATTERY_DISCONNECT_THRESH|bq25703a_regulator.h|4.215|4.215|Average cell voltage at charge output above this threshold interpreted as disconnected charge lead
+BATTERY_DISCONNECT_THRESH|bq25703a_regulator.h|4.215|4.215|Average cell voltage at charge output above this threshold interpreted as disconnected charge lead (CONNECTION_NO_XT60)
 MIN_CELL_V_FOR_BALANCING|battery.h|3.0|3.0|Balancing not allowed if any cell is under this voltage
 CELL_VOLTAGE_TO_ENABLE_CHARGING|battery.h|4.18|4.08|Charging only starts if average cell voltage is below this
 CELL_OVER_VOLTAGE_ENABLE_DISCHARGE|battery.h|4.205|4.105|Discharge any cells above this voltage
@@ -107,6 +107,7 @@ Function|Purpose
 -|-
 StartDefaultTask|Empty default task
 vLED_Blinky|Control RGB LED
+HAL_ADC_ConvCpltCallback| ADC ISR, called every reading
 vRead_ADC|Read and filter ADCs
 vRegulator|Control regulator and battery charging
 prvUARTCommandConsoleTask|Run CLI console
@@ -115,7 +116,9 @@ Threads include delays using vTaskDelay(). These are accurate but do not account
 
 ## ADC input
 
-ADC works by constantly sampling ADCs via DMA, summing into adc_buffer_filtered for ADC_FILTER_SUM_COUNT (380) cycles, then dividing into adc_filtered_output, which is constantly updated and visible in the debugger.
+ADCs are continuously sampled via DMA. HAL_ADC_ConvCpltCallback is called for each sample. Readings are summed into adc_buffer_filtered for ADC_FILTER_SUM_COUNT (380) cycles, then divided into adc_filtered_output, which is constantly updated and visible in the debugger.
+
+In vRead_ADC thread, each time a new adc_filtered_output set is completed, filtered readings are copied into corresponding variables.
 
 Assigned ADC pins aren't referred to by name in the code, but by their positions in the DMA read cycle (see below for setup)
 
