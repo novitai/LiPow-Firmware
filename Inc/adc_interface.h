@@ -19,6 +19,12 @@ extern "C" {
 #define ADC_FILTER_SUM_COUNT		380
 #define BATTERY_ADC_MULTIPLIER 		1000000
 
+// ADC indexes (adc_filtered_output)
+#define ADC_BATTERY_GND				0
+#define ADC_BATTERY					5
+#define ADC_VREF					6
+#define ADC_TEMP					7
+
 // Min expected ADC readings
 #define BATTERY_MIN_ADC_READING 	5
 #define CELL_ONE_MIN_ADC_READING 	5

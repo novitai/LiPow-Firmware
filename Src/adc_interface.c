@@ -81,7 +81,7 @@ uint32_t Get_Cell_Voltage(uint8_t cell_number) {
 }
 
 /**
- * @brief  Sets the cell 1 voltage that was read in from the ADC
+ * @brief  Sets the single-cell voltage from the inter-cell voltage read from the ADC
  * @param  cell_number: Cell number 0-3 to set voltage
  * @param  adc_reading: Raw reading from ADC
  * @retval uint8_t 1 if successful, 0 if error
@@ -286,17 +286,18 @@ void vRead_ADC(void const *pvParameters) {
 
 			// ADC array is handled here, but order of elements is set in .ioc file [PR]
 			
-			Set_Battery_Voltage(adc_filtered_output[0]);
+			Set_Battery_Voltage(adc_filtered_output[ADC_BATTERY]);
 
+			//Set_Cell_Voltage(-1, adc_filtered_output[ADC_BATTERY_GND]);		// Apply 0S reading (not yet implemented)
 			for (int i = 0; i < 4; i++) {
 				Set_Cell_Voltage(i, adc_filtered_output[i+1]);
 			}
 
 			// Calculate temperature from Temp sensor and Vrefint
-			Set_MCU_Temperature(adc_filtered_output[5], adc_filtered_output[6]);
+			Set_MCU_Temperature(adc_filtered_output[ADC_TEMP], adc_filtered_output[ADC_VREF]);
 
 			// Calculate VDDa from Vrefint
-			Set_VDDa(adc_filtered_output[6]);
+			Set_VDDa(adc_filtered_output[ADC_VREF]);
 
 			/* Determines battery connection state and performs balancing */
 			Battery_Connection_State();

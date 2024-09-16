@@ -118,7 +118,7 @@ Threads include delays using vTaskDelay(). These are accurate but do not account
 
 ADCs are continuously sampled via DMA. HAL_ADC_ConvCpltCallback is called for each sample. Readings are summed into adc_buffer_filtered for ADC_FILTER_SUM_COUNT (380) cycles, then divided into adc_filtered_output, which is constantly updated and visible in the debugger.
 
-In vRead_ADC thread, each time a new adc_filtered_output set is completed, filtered readings are copied into corresponding variables.
+In vRead_ADC thread, each time a new adc_filtered_output set is completed, filtered readings are copied into corresponding variables. Set_Cell_Voltage() is called to calculate cell voltages from ADC readings
 
 Assigned ADC pins aren't referred to by name in the code, but by their positions in the DMA read cycle (see below for setup)
 
@@ -126,14 +126,26 @@ ADC-derived variables such as cell voltages are set directly from elements in ad
 
 Element|DMA rank|Content
 -|-|-
-0|1|Battery voltage
-1|2|Cell 1 voltage
-2|3|Cell 2 voltage
-3|4|Cell 3 voltage
-4|5|Cell 4 voltage
-5|6|MCU temperature
+0|1|Battery ground voltage (ADC7, not currently implemented)
+1|2|Cell 1 voltage  (ADC2)
+2|3|Cell 2 voltage (ADC3)
+3|4|Cell 3 voltage (ADC4)
+4|5|Cell 4 voltage (ADC5)
+5|6|Battery voltage (ADC6)
 6|7|VDDa (Vrefint)
-7|8|Unused
+7|8|MCU temperature
+
+Variable/array|Purpose
+-|-
+`bat_voltage`|Voltage at full battery connector (1E-6 V)
+`adc_values.cell_voltage[]`|Calculated single-cell voltages (1E-6 V)
+`adc_values.two_s_battery_voltage`|2S battery voltage at balance input (1E-6 V)
+`adc_values.three_s_battery_voltage`|3S battery voltage at balance input (1E-6 V)
+`adc_values.four_s_battery_voltage`|4S battery voltage at balance input (1E-6 V)
+`vrefint`|Calculated but only used for temperature
+`temperature`|Temperature (deg)
+
+Adding 0S reading would require new ADC measurement, a new value in the adc_values structure, and modification of Set_Cell_Voltage() to use it for calculating cell and battery voltages.
 
 Filtered data is produced at around 30Hz. vRead_ADC() is where filtered ADC channels are copied to variables. It runs as a thread, and waits for a notification from the ADC reading code to indicate that new filtered data has arrived.
 
