@@ -17,19 +17,16 @@ extern "C" {
 #include "cmsis_os.h"
 
 #define ADC_FILTER_SUM_COUNT		380
-
 #define BATTERY_ADC_MULTIPLIER 		1000000
 
+// Min expected ADC readings
 #define BATTERY_MIN_ADC_READING 	5
-
 #define CELL_ONE_MIN_ADC_READING 	5
-
 #define CELL_TWO_MIN_ADC_READING 	5
-
 #define CELL_THREE_MIN_ADC_READING 	5
-
 #define CELL_FOUR_MIN_ADC_READING 	5
 
+// Max expected inter-cell voltages
 #define CELL_MAX_VOLTAGE			(uint32_t)( 5 * BATTERY_ADC_MULTIPLIER )
 #define TWO_S_MAX_VOLTAGE			(uint32_t)( 10 * BATTERY_ADC_MULTIPLIER )
 #define THREE_S_MAX_VOLTAGE			(uint32_t)( 15 * BATTERY_ADC_MULTIPLIER )
