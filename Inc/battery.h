@@ -17,14 +17,14 @@ extern "C" {
 #include "cmsis_os.h"
 #include "error.h"
 
-#define VOLTAGE_CONNECTED_THRESHOLD			(uint32_t)( 0.1 * BATTERY_ADC_MULTIPLIER )
+#define VOLTAGE_CONNECTED_THRESHOLD			(uint32_t)( 0.1 * BATTERY_ADC_MULTIPLIER )		// Inputs considered connected if above this voltage
 #define CELL_DELTA_V_ENABLE_BALANCING		(uint32_t)( 0.015 * BATTERY_ADC_MULTIPLIER )
 #define CELL_BALANCING_HYSTERESIS_V			(uint32_t)( 0.010 * BATTERY_ADC_MULTIPLIER )
 #define CELL_BALANCING_SCALAR_MAX			(uint8_t)25
 #define MIN_CELL_V_FOR_BALANCING			(uint32_t)( 3.0 * BATTERY_ADC_MULTIPLIER )
-#define CELL_VOLTAGE_TO_ENABLE_CHARGING		(uint32_t)( 4.08 * BATTERY_ADC_MULTIPLIER )
+#define CELL_VOLTAGE_TO_ENABLE_CHARGING		(uint32_t)( 4.08 * BATTERY_ADC_MULTIPLIER )		// Charging only starts if average cell voltage is below this
 #define CELL_OVER_VOLTAGE_ENABLE_DISCHARGE	(uint32_t)( 4.105 * BATTERY_ADC_MULTIPLIER )
-#define CELL_OVER_VOLTAGE_DISABLE_CHARGING	(uint32_t)( 4.12 * BATTERY_ADC_MULTIPLIER )
+#define CELL_OVER_VOLTAGE_DISABLE_CHARGING	(uint32_t)( 4.205 * BATTERY_ADC_MULTIPLIER )	// Discharge any cells above this voltage
 #define MIN_CELL_VOLTAGE_SAFE_LIMIT			(uint32_t)( 2.0 * BATTERY_ADC_MULTIPLIER )
 
 #define MAX_MCU_TEMP_C_FOR_OPERATION	75
