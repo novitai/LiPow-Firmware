@@ -65,8 +65,9 @@ void Balance_Battery()
 			scalar = 1.0f;
 		}
 
+		// Decide whether balancing should be enabled
 		if ( ((max_cell_voltage - min_cell_voltage) >= ((float)CELL_DELTA_V_ENABLE_BALANCING * scalar)) && (min_cell_voltage > MIN_CELL_V_FOR_BALANCING) && (battery_state.balancing_enabled == 0)) {
-			// Difference between min and max cells >= CELL_DELTA_V_ENABLE_BALANCING (scaled)
+			// Cell voltage span >= CELL_DELTA_V_ENABLE_BALANCING (scaled)
 			// AND min cell voltage > MIN_CELL_V_FOR_BALANCING
 			battery_state.balancing_enabled = 1;
 		}
