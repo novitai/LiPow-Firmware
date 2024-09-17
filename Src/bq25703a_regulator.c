@@ -40,7 +40,7 @@ struct Regulator {
 /* Private variables ---------------------------------------------------------*/
 struct Regulator regulator;
 
-unsigned char connection_state;			// State of power and balance connections
+uint8_t connection_state;				// State of power and balance connections
 #define CONNECTION_OK			11
 #define CONNECTION_NO_XT60		12
 #define CONNECTION_NO_PD		13
@@ -353,8 +353,8 @@ void Regulator_OTG_EN(uint8_t otg_en) {
  */
 void Regulator_Set_Charge_Option_0() {
 
-	uint8_t charge_option_0_register_1_value = 0b00100110;
-	uint8_t charge_option_0_register_2_value = 0b00001110;
+	uint8_t charge_option_0_register_1_value = CHARGE_OPTION_0H;
+	uint8_t charge_option_0_register_2_value = CHARGE_OPTION_0L;
 
 	I2C_Write_Two_Byte_Register(CHARGE_OPTION_0_ADDR, charge_option_0_register_2_value, charge_option_0_register_1_value);
 
@@ -597,23 +597,20 @@ void vRegulator(void const *pvParameters) {
 
 		// Charge control state machine
 		switch (charge_state) {
-			case C_CHARGE:
-			// Charge cycle state: Charge
+			case C_CHARGE:												// Charge cycle state: Charge
 			Control_Charger_Output();
 
 			if (timer_count > 20) {charge_state_new = C_RECOVER;}
 			break;
 
-			case C_RECOVER:
-			// Charge cycle state: Recover
+			case C_RECOVER:												// Charge cycle state: Recover
 			Balance_Off();
 			Regulator_HI_Z(1);
 
 			if (timer_count > 4) {charge_state_new = C_MEASURE;}
 			break;
 
-			case C_MEASURE:
-			// Charge cycle state: Measure & balance
+			case C_MEASURE:												// Charge cycle state: Measure & balance
 			Balance_Battery();
 
 			charge_state_new = C_CHARGE;

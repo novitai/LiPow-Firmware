@@ -11,7 +11,7 @@ Add serial debug statements, find out if any actions coincide with ticking
 
 # Useful code
 
-`Get_Charge_Current_ADC_Reading()` returns `regulator.charge_current`, regulator I2C register `ICHG_ADC_ADDR`.
+`Get_Charge_Current_ADC_Reading()` returns `regulator.charge_current` (battery charge current), 64mA resolution. Comes from regulator I2C register `ICHG_ADC_ADDR` aka `ADCIBAT`. Can be changed to report discharge current  (256mA resolution) with ChargeOption2 (32h) register.
 
 `Set_Charge_Current(current)` sets charge current
 
@@ -76,6 +76,8 @@ Error State Flags           |From 'error_state', see below
 
 # Constants
 
+The following constants control the charging strategy:
+
 Constant|Defined in|Original|Current|Purpose
 -|-|-|-|-
 ADC_FILTER_SUM_COUNT|adc_interface.h|380|380|Number of ADC samples to combine for filtering
@@ -85,7 +87,7 @@ BATTERY_DISCONNECT_THRESH|bq25703a_regulator.h|4.215|4.215|Average cell voltage 
 MIN_CELL_V_FOR_BALANCING|battery.h|3.0|3.0|Balancing not allowed if any cell is under this voltage
 CELL_VOLTAGE_TO_ENABLE_CHARGING|battery.h|4.18|4.08|Charging only starts if average cell voltage is below this
 CELL_OVER_VOLTAGE_ENABLE_DISCHARGE|battery.h|4.205|4.105|Discharge any cells above this voltage
-CELL_OVER_VOLTAGE_DISABLE_CHARGING|battery.h|4.22|4.12|Stop charging if any cells above this voltage
+CELL_OVER_VOLTAGE_DISABLE_CHARGING|battery.h|4.22|4.12|Stop charging if any individual cell above this voltage
 
 # Error flags
 Error flags stored in `error_state`, accessed via Get_Error_State() and 'stats' output.
@@ -213,53 +215,6 @@ When powered from USB PD, regulator ticking sound is in time with control loop. 
 
 When testing, remember to connect VBATT and 4S
 
-Overcharging likely happening because voltage/current sensing reads zero. This is being read directly from the regulator IC.
-
-Idea: Read status byte for debugging (only 1 bit currently used)
-
-Use serial debug statements to report charge strategy
-
-
-## Charging cells test
-
-Conditions for charging:
-
-- Get_XT60_Connection_State() == CONNECTED
-- Get_Balance_Connection_State() == CONNECTED
-- Get_Error_State() == 0
-- Get_Input_Power_Ready() == READY
-- Get_Cell_Over_Voltage_State() == 0
-
-Ticking sound analysed with scope.
-
-- USB power starts at 5V, comms with regulator start
-- MCU negotites higher voltage, voltage climbs to approx 19.7V, indicating current draw
-- Comms with regulator continue
-- 820ms later, brief rise in VUSB to 20.7V, indicating drop in load, not coinciding with I2C comms
-- 5ms later, all MOSFETs on, VUSB crashes to 3.3V for around 0.5ms
-- CHRG_OK pulled low as a result, audible tick from USB connector
-- VUSB recovers to 21V then stabilises to 20.2V within 5ms
-- CHRG_OK returns high after allotted delay
-- VUSB maintains around 20.2V indicating low current draw
-- Voltage crash and ticking continues in time with regulator control loop, coinciding with Control_Charger_Output()
-
-Tested these registers while ticking occurs, nothing anomalous found:
-
-- ChargerStatus (20h)
-- ChargeOption2 (33h) 
-
-### 2S test
-
-- Battery current flow starts at -3mA, increases to -20mA (flow *from* battery) when 'charging' begins
-- Circuit draws approx 20mA when disconnected from battery
-- Charge current is set to 200mA in program
-- STM requests and usually gets 9V
-- Circuit consumes 4.5W from USB, board gets hot around Q1, Q4
-- Approv 1.75V dropped over Q1
-- Voltage ripple measured at 200kHz, stated switching frequency is 800 kHz but regulator decreases switching frequency to improve efficiency (8.3.4.3)
-- Voltage reaching 3.3V regulator approx 0.5V less than Vusb
-- Hypothesis: buck converter is not functioning, circuit drains power from both battery and USB when running
-
 # PCB notes
 
 Component selection criteria are in section 9 of the bq25703A datasheet.
@@ -268,6 +223,7 @@ Component selection criteria are in section 9 of the bq25703A datasheet.
 
 - Improve heat transfer with vias
 - Change balance resistors
+- Reduce voltage drops when charging/balancing
 
 ## Inductor
 
@@ -287,3 +243,8 @@ Balancing causes voltage readings to fluctuate significantly. Possible solutions
 
 - Change balancing strategy to avoid inferring wrong cell voltages
 - Increase balance resistors
+
+Try:
+
+Measure, then start charge cycle. On error, stop and measure again.
+Make list of controlling variables.

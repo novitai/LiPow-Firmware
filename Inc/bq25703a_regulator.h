@@ -22,6 +22,7 @@ extern "C" {
 
 #define I2C_TIMEOUT					(500 / portTICK_PERIOD_MS)
 
+// Regulator registers
 #define BQ26703A_I2C_ADDRESS		0xD6
 #define BQ26703A_MANUFACTURER_ID	0x40
 #define BQ26703A_DEVICE_ID			0x78
@@ -48,11 +49,16 @@ extern "C" {
 #define EN_LWPWR					0b0
 #define EN_OOA						0b1
 
+// Regulator option values
+#define CHARGE_OPTION_0H			0b00100110
+#define CHARGE_OPTION_0L			0b00001110
+
+// Regulator bitmasks
 #define CHARGING_ENABLED_MASK		0b00000100
 #define ADC_ENABLED_BITMASK			0b01010111
 #define ADC_START_CONVERSION_MASK	0b01100000
 
-//Max voltage register 1 values
+// Max voltage register 1 values
 #define MAX_VOLT_ADD_16384_MV		0b01000000
 #define MAX_VOLT_ADD_8192_MV		0b00100000
 #define MAX_VOLT_ADD_4096_MV		0b00010000
@@ -61,13 +67,13 @@ extern "C" {
 #define MAX_VOLT_ADD_512_MV			0b00000010
 #define MAX_VOLT_ADD_256_MV			0b00000001
 
-//Max voltage register 2 values
+// Max voltage register 2 values
 #define MAX_VOLT_ADD_128_MV			0b10000000
 #define MAX_VOLT_ADD_64_MV			0b01000000
 #define MAX_VOLT_ADD_32_MV			0b00100000
 #define MAX_VOLT_ADD_16_MV			0b00010000
 
-//Minimum system voltage register values
+// Minimum system voltage register values
 #define MIN_VOLT_ADD_8192_MV		0b00100000
 #define MIN_VOLT_ADD_4096_MV		0b00010000
 #define MIN_VOLT_ADD_2048_MV		0b00001000
@@ -75,8 +81,8 @@ extern "C" {
 #define MIN_VOLT_ADD_512_MV			0b00000010
 #define MIN_VOLT_ADD_256_MV			0b00000001
 
+// Regulator ADC parameters
 #define REG_ADC_MULTIPLIER			100000
-
 #define VBUS_ADC_SCALE				(uint32_t)( 0.064 * REG_ADC_MULTIPLIER )
 #define VBUS_ADC_OFFSET				(uint32_t)( 3.2 * REG_ADC_MULTIPLIER )
 #define PSYS_ADC_SCALE				(uint32_t)( 0.012 * REG_ADC_MULTIPLIER )
@@ -87,6 +93,7 @@ extern "C" {
 #define ICHG_ADC_SCALE				(uint32_t)(0.064 * REG_ADC_MULTIPLIER)
 #define IIN_ADC_SCALE				(uint32_t)(0.050 * REG_ADC_MULTIPLIER)
 
+// Regulator charging control parameters
 #define MAX_CHARGE_CURRENT_MA		200  // Previously 6000
 #define ASSUME_EFFICIENCY			0.85f
 #define BATTERY_DISCONNECT_THRESH	(uint32_t)(4.215 * REG_ADC_MULTIPLIER)
