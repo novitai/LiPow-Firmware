@@ -767,7 +767,7 @@ void vLED_Blinky(void const *pvParameters) {
 	for (;;) {
 
 		if ( (Get_Balance_Connection_State() != CONNECTED) && (Get_Error_State() == 0)) {
-      // Cycle GBR
+      // Battery unconnected; cycle GBR
 			switch (count) {
 			case 0:
         // LED green
@@ -813,7 +813,8 @@ void vLED_Blinky(void const *pvParameters) {
 			vTaskDelay(xDelay * 4);
 		}
 		else {
-			if (Get_Balancing_State() >= 1) {
+      // No error, battery connected
+			if (Get_Balancing_State() != 0) {
         // Blue LED indicates at least one cell is balancing
 				HAL_GPIO_WritePin(Blue_LED_GPIO_Port, Blue_LED_Pin, GPIO_PIN_RESET);
 			}
