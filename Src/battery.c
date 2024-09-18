@@ -94,9 +94,7 @@ void Balance_Battery()
 
 	}
 	else {
-		Balancing_GPIO_Control(0);
-		battery_state.cell_balance_bitmask = 0;
-		battery_state.balancing_enabled = 0;
+		Balance_Off();
 	}
 }
 
@@ -105,7 +103,7 @@ void Balance_Battery()
  */
 void Balance_Off()
 {
-	Balancing_GPIO_Control(0);
+	Balancing_GPIO_Control(0b0000);
 	battery_state.cell_balance_bitmask = 0;
 	battery_state.balancing_enabled = 0;
 }
@@ -193,7 +191,7 @@ void Cell_Voltage_Safety_Check()
 
 	for (int i = 0; i < battery_state.number_of_cells; i++) {
 		if (Get_Cell_Voltage(i) > CELL_OVER_VOLTAGE_DISABLE_CHARGING) {
-			over_voltage_temp = 1;
+			over_voltage_temp |= 1 << i;
 		}
 
 		if (Get_Cell_Voltage(i) < MIN_CELL_VOLTAGE_SAFE_LIMIT) {

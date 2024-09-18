@@ -19,7 +19,7 @@ extern I2C_HandleTypeDef hi2c1;		// I2C handle
 uint16_t testword;  // [PR] test byte readable by debugger
 
 // Serial debug output:
-// ChargeState,Timer,Errors,Vusb,Vbat,Vsys,Icharge,Iinput,ChStatus,ConnState,CellCount,charge_current_limit,current_setting,C4,C3,C2,C1,Balance
+// ChargeState,Timer,Errors,Vusb,Vbat,Vsys,Icharge,Iinput,ChStatus,ConnState,CellCount,charge_current_limit,current_setting,C4,C3,C2,C1,Balance,Overvoltage
 
 /* Private typedef -----------------------------------------------------------*/
 struct Regulator {
@@ -40,16 +40,18 @@ struct Regulator {
 /* Private variables ---------------------------------------------------------*/
 struct Regulator regulator;
 
-uint8_t connection_state;				// State of power and balance connections
+// Charging status
+volatile uint8_t connection_status;			// State of power and balance connections
 #define CONNECTION_OK			11
 #define CONNECTION_NO_XT60		12
 #define CONNECTION_NO_PD		13
 #define CONNECTION_FAIL			14
 
-uint8_t charge_state;					// Charging state machine
+uint8_t charge_state;						// Charging state machine
 #define C_CHARGE				21
 #define C_RECOVER				22
 #define C_MEASURE				23
+#define C_BALANCE				24
 
 /* The maximum time to wait for the mutex that guards the I2C bus to become
  available. */
@@ -507,16 +509,16 @@ void Control_Charger_Output() {
 		uint32_t charging_current_ma = (charging_power_mw / (float)(Get_Battery_Voltage() / BATTERY_ADC_MULTIPLIER));  // [PR] warning - precision lost here, move (float) inside brackets
 
 		Set_Charge_Current(charging_current_ma);
-
 		Regulator_HI_Z(0);
-		connection_state = CONNECTION_OK;
+		
+		connection_status = CONNECTION_OK;
 
 		// Check if XT60 was disconnected
 		if (regulator.vbat_voltage > (BATTERY_DISCONNECT_THRESH * Get_Number_Of_Cells())) {
 			Regulator_HI_Z(1);
 			vTaskDelay(xDelay*2);
 			Regulator_HI_Z(0);
-			connection_state = CONNECTION_NO_XT60;
+			connection_status = CONNECTION_NO_XT60;
 		}
 	}
 	// Case to handle non USB PD supplies. Limited to 5V 500mA.
@@ -532,7 +534,7 @@ void Control_Charger_Output() {
 
 		Regulator_HI_Z(0);
 
-		connection_state = CONNECTION_NO_PD;
+		connection_status = CONNECTION_NO_PD;
 	}
 	else {
 
@@ -542,7 +544,7 @@ void Control_Charger_Output() {
 		Set_Charge_Voltage(0);
 		Set_Charge_Current(0);
 		
-		connection_state = CONNECTION_FAIL;
+		connection_status = CONNECTION_FAIL;
 	}
 }
 
@@ -599,21 +601,28 @@ void vRegulator(void const *pvParameters) {
 		switch (charge_state) {
 			case C_CHARGE:												// Charge cycle state: Charge
 			Control_Charger_Output();
+			if (timer_count >= 20) {charge_state_new = C_RECOVER;}
+			break;
 
-			if (timer_count > 20) {charge_state_new = C_RECOVER;}
+			case C_BALANCE:												// Charge cycle state: Balance
+			if (timer_count >= 20) {charge_state_new = C_RECOVER;}
 			break;
 
 			case C_RECOVER:												// Charge cycle state: Recover
 			Balance_Off();
 			Regulator_HI_Z(1);
 
-			if (timer_count > 4) {charge_state_new = C_MEASURE;}
+			if (timer_count >= 4) {charge_state_new = C_MEASURE;}
 			break;
 
 			case C_MEASURE:												// Charge cycle state: Measure & balance
+			if (Get_Requires_Charging_State()) {
+				charge_state_new = C_CHARGE;
+			}
+			else {
+				charge_state_new = C_BALANCE;
+			}
 			Balance_Battery();
-
-			charge_state_new = C_CHARGE;
 			break;
 		}
 
@@ -625,7 +634,7 @@ void vRegulator(void const *pvParameters) {
 			// Vusb,Vbat,Vsys,Icharge,Iinput
 			printf("%u,%.2f,%.2f,%u,%u,", Get_Input_Voltage()/1000, (float)regulator.vbat_voltage/100000, (float)regulator.vsys_voltage/100000, regulator.charge_current/100, regulator.input_current/100);
 			printf("%u,", regulator.charging_status);								// Charging status
-			printf("%u,", connection_state);										// Connection state
+			printf("%u,", connection_status);										// Connection state
 			printf("%uS,", Get_Number_Of_Cells());									// CellCount
 			printf("%u,", regulator.max_charge_current_ma);							// charge_current_limit (capped to max charge current)
 			printf("%u,", regulator.current_setting * 64);							// Regulator charge current setting
@@ -633,7 +642,8 @@ void vRegulator(void const *pvParameters) {
 			printf("%.3f,", (float)Get_Cell_Voltage(2) / BATTERY_ADC_MULTIPLIER);	// Cell 3
 			printf("%.3f,", (float)Get_Cell_Voltage(1) / BATTERY_ADC_MULTIPLIER);	// Cell 2
 			printf("%.3f,", (float)Get_Cell_Voltage(0) / BATTERY_ADC_MULTIPLIER);	// Cell 1
-			printf("B%04b,", Get_Balancing_State());								// Cell balancing state
+			printf("B%04b,", Get_Balancing_State());								// Cell balancing state (does not include overvoltage discharging)
+			printf("B%04b,", Get_Cell_Over_Voltage_State());						// Cell overvoltage state
 			printf("\r\n");
 		}
 
