@@ -144,10 +144,7 @@ void Error_Handler(void);
 #define CELL_4S_DIS_EN_Pin GPIO_PIN_9
 #define CELL_4S_DIS_EN_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
-#define ADC_EN_Pin GPIO_PIN_6
-#define ADC_EN_GPIO_Port GPIOC
-#define PWR_OUT_EN_Pin GPIO_PIN_7
-#define PWR_OUT_EN_GPIO_Port GPIOC
+
 #define LIPOW_MAJOR_VERSION	(uint8_t)2
 #define LIPOW_MINOR_VERSION	(uint8_t)0
 
