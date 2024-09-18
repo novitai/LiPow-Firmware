@@ -143,6 +143,10 @@ uint32_t Get_Input_Voltage(void) {
 void vUSBPD_User(void const *pvParameters) {
 	TickType_t xDelay = 500 / portTICK_PERIOD_MS;
 	USBPD_StatusTypeDef status = USBPD_ERROR;
+	USBPD_PDO_TypeDef srcpdo;
+	uint32_t nbsnkpdo;
+	uint32_t snkpdo_array[USBPD_MAX_NB_PDO];
+	uint8_t pd_state = 1;
 
 	vTaskDelay(xDelay);
 
@@ -158,125 +162,147 @@ void vUSBPD_User(void const *pvParameters) {
 		vTaskDelay(xDelay);
 	}
 */
-
-	printf("Number of received Source PDOs: %d\r\n", DPM_Ports[USBPD_PORT_0].DPM_NumberOfRcvSRCPDO);
-
-	USBPD_PDO_TypeDef srcpdo;
-	uint32_t nbsnkpdo;
-	uint32_t snkpdo_array[USBPD_MAX_NB_PDO];
-	USBPD_PWR_IF_GetPortPDOs(USBPD_PORT_0, USBPD_CORE_DATATYPE_SNK_PDO, (uint8_t*)snkpdo_array, &nbsnkpdo);
-
-	for (int i = 0; i < DPM_Ports[USBPD_PORT_0].DPM_NumberOfRcvSRCPDO; i++) {
-
-		printf("PDO From Source: #%d PDO: %d  ", i, DPM_Ports[USBPD_PORT_0].DPM_ListOfRcvSRCPDO[i]);
-
-		srcpdo.d32 = DPM_Ports[USBPD_PORT_0].DPM_ListOfRcvSRCPDO[i];
-		switch(srcpdo.GenericPDO.PowerObject)
-		{
-			/* SRC Fixed Supply PDO */
-			case USBPD_CORE_PDO_TYPE_FIXED:
-				source_pdo[i].voltage_mv = (srcpdo.SRCFixedPDO.VoltageIn50mVunits * 50);
-				source_pdo[i].current_ma = (srcpdo.SRCFixedPDO.MaxCurrentIn10mAunits * 10);
-				source_pdo[i].power_mw = (source_pdo[i].current_ma * source_pdo[i].voltage_mv) / 1000;
-
-				if (source_pdo[i].power_mw > max_source_power_mw){
-					max_source_power_mw = source_pdo[i].power_mw;
-					max_source_power_pdo = i;
-				}
-			  break;
-//			/* SRC Variable Supply (non-battery) PDO */
-			case USBPD_CORE_PDO_TYPE_VARIABLE:
-				printf("USBPD_CORE_PDO_TYPE_VARIABLE ");
-//			  srcmaxvoltage50mv = srcpdo.SRCVariablePDO.MaxVoltageIn50mVunits;
-//			  srcminvoltage50mv = srcpdo.SRCVariablePDO.MinVoltageIn50mVunits;
-//			  srcmaxcurrent10ma = srcpdo.SRCVariablePDO.MaxCurrentIn10mAunits;
-			  break;
-//			/* SRC Battery Supply PDO */
-			case USBPD_CORE_PDO_TYPE_BATTERY:
-				printf("USBPD_CORE_PDO_TYPE_BATTERY ");
-//			  srcmaxvoltage50mv = srcpdo.SRCBatteryPDO.MaxVoltageIn50mVunits;
-//			  srcminvoltage50mv = srcpdo.SRCBatteryPDO.MinVoltageIn50mVunits;
-//			  srcmaxpower250mw  = srcpdo.SRCBatteryPDO.MaxAllowablePowerIn250mWunits;
-			  break;
-//			/* Augmented Power Data Object (APDO) */
-			case USBPD_CORE_PDO_TYPE_APDO:
-				printf("USBPD_CORE_PDO_TYPE_BATTERY ");
-//				srcmaxvoltage100mv = srcpdo.SRCSNKAPDO.MaxVoltageIn100mV;
-//				srcmaxcurrent50ma = srcpdo.SRCSNKAPDO.MaxCurrentIn50mAunits;
-				break;
-		    default:
-		      break;
-		}
-		printf("Voltage: %dmV  Current: %dmA  Power: %dmW\r\n", source_pdo[i].voltage_mv, source_pdo[i].current_ma, source_pdo[i].power_mw);
-	}
-
-	if (DPM_Ports[USBPD_PORT_0].DPM_NumberOfRcvSRCPDO == 0) {
-		power_ready = NO_USB_PD_SUPPLY;
-		for(;;) {
-			vTaskDelay(xDelay);
-		}
-	}
-
 	for (;;) {
 
-		//Find the best PDO from the source for the highest regulator efficiency
-		if ((Get_Balance_Connection_State() == CONNECTED)) {
-			if (match_found == 0) {
-				for (int i = 0; i < VOLTAGE_CHOICE_ARRAY_SIZE; i++) {
-					for (int t = 0; t < DPM_Ports[USBPD_PORT_0].DPM_NumberOfRcvSRCPDO; t++) {
-						if (voltage_choice_list_mv[Get_Number_Of_Cells() - 2][i] == source_pdo[t].voltage_mv) {
-							printf("Voltage match found: %d\r\n", source_pdo[t].voltage_mv);
-							selected_source_pdo = t;
-							match_found = 1;
+		switch (pd_state) {
+			case 1:
+				printf("Number of received Source PDOs: %d\r\n", DPM_Ports[USBPD_PORT_0].DPM_NumberOfRcvSRCPDO);
+
+				USBPD_PWR_IF_GetPortPDOs(USBPD_PORT_0, USBPD_CORE_DATATYPE_SNK_PDO, (uint8_t*)snkpdo_array, &nbsnkpdo);
+
+				for (int i = 0; i < DPM_Ports[USBPD_PORT_0].DPM_NumberOfRcvSRCPDO; i++) {
+
+					printf("PDO From Source: #%d PDO: %d  ", i, DPM_Ports[USBPD_PORT_0].DPM_ListOfRcvSRCPDO[i]);
+
+					srcpdo.d32 = DPM_Ports[USBPD_PORT_0].DPM_ListOfRcvSRCPDO[i];
+					switch(srcpdo.GenericPDO.PowerObject)
+					{
+						/* SRC Fixed Supply PDO */
+						case USBPD_CORE_PDO_TYPE_FIXED:
+							source_pdo[i].voltage_mv = (srcpdo.SRCFixedPDO.VoltageIn50mVunits * 50);
+							source_pdo[i].current_ma = (srcpdo.SRCFixedPDO.MaxCurrentIn10mAunits * 10);
+							source_pdo[i].power_mw = (source_pdo[i].current_ma * source_pdo[i].voltage_mv) / 1000;
+
+							if (source_pdo[i].power_mw > max_source_power_mw){
+								max_source_power_mw = source_pdo[i].power_mw;
+								max_source_power_pdo = i;
+							}
+						break;
+			//			/* SRC Variable Supply (non-battery) PDO */
+						case USBPD_CORE_PDO_TYPE_VARIABLE:
+							printf("USBPD_CORE_PDO_TYPE_VARIABLE ");
+			//			  srcmaxvoltage50mv = srcpdo.SRCVariablePDO.MaxVoltageIn50mVunits;
+			//			  srcminvoltage50mv = srcpdo.SRCVariablePDO.MinVoltageIn50mVunits;
+			//			  srcmaxcurrent10ma = srcpdo.SRCVariablePDO.MaxCurrentIn10mAunits;
+						break;
+			//			/* SRC Battery Supply PDO */
+						case USBPD_CORE_PDO_TYPE_BATTERY:
+							printf("USBPD_CORE_PDO_TYPE_BATTERY ");
+			//			  srcmaxvoltage50mv = srcpdo.SRCBatteryPDO.MaxVoltageIn50mVunits;
+			//			  srcminvoltage50mv = srcpdo.SRCBatteryPDO.MinVoltageIn50mVunits;
+			//			  srcmaxpower250mw  = srcpdo.SRCBatteryPDO.MaxAllowablePowerIn250mWunits;
+						break;
+			//			/* Augmented Power Data Object (APDO) */
+						case USBPD_CORE_PDO_TYPE_APDO:
+							printf("USBPD_CORE_PDO_TYPE_BATTERY ");
+			//				srcmaxvoltage100mv = srcpdo.SRCSNKAPDO.MaxVoltageIn100mV;
+			//				srcmaxcurrent50ma = srcpdo.SRCSNKAPDO.MaxCurrentIn50mAunits;
 							break;
-						}
-					}
-					if (match_found != 0) {
+						default:
 						break;
 					}
+					printf("Voltage: %dmV  Current: %dmA  Power: %dmW\r\n", source_pdo[i].voltage_mv, source_pdo[i].current_ma, source_pdo[i].power_mw);
 				}
-			}
-		}
-		else {
-			match_found = 0;
-		}
 
-		if ((Get_XT60_Connection_State() == CONNECTED) && (Get_Balance_Connection_State() == CONNECTED) && (power_ready == NOT_READY) && (match_found == 1)) {
-			printf("Requesting %dV, Result: ", (source_pdo[selected_source_pdo].voltage_mv/1000));
-			status = USBPD_DPM_RequestMessageRequest(USBPD_PORT_0, (selected_source_pdo + 1), (uint16_t)source_pdo[selected_source_pdo].voltage_mv);
-			vTaskDelay(400 / portTICK_PERIOD_MS);
-			if (status == USBPD_OK) {
-				if (check_if_power_ready() != READY) {
-					printf("Waiting for input voltage to be ready\r\n");
+				if (DPM_Ports[USBPD_PORT_0].DPM_NumberOfRcvSRCPDO == 0) {
+					pd_state = 2;
+				}
+				else {
+					pd_state = 3;
+				}
+			break;
+
+			case 2:
+				// No PD available
+				power_ready = NO_USB_PD_SUPPLY;
+				vTaskDelay(xDelay);
+				if (DPM_Ports[USBPD_PORT_0].DPM_NumberOfRcvSRCPDO > 0) {
+					pd_state = 1;
 					power_ready = NOT_READY;
 				}
+			break;
+
+			case 3:
+				// PD available; find the best PDO from the source for the highest regulator efficiency
+				if ((Get_Balance_Connection_State() == CONNECTED)) {
+					if (match_found == 0) {
+						for (int i = 0; i < VOLTAGE_CHOICE_ARRAY_SIZE; i++) {
+							for (int t = 0; t < DPM_Ports[USBPD_PORT_0].DPM_NumberOfRcvSRCPDO; t++) {
+								if (voltage_choice_list_mv[Get_Number_Of_Cells() - 2][i] == source_pdo[t].voltage_mv) {
+									printf("Voltage match found: %d\r\n", source_pdo[t].voltage_mv);
+									selected_source_pdo = t;
+									match_found = 1;
+									break;
+								}
+							}
+							if (match_found != 0) {
+								break;
+							}
+						}
+					}
+				}
 				else {
-					printf("Success\r\n");
-					power_ready = READY;
+					match_found = 0;
 				}
-			}
-			else {
-				printf("Failed\r\n");
-				power_ready = NOT_READY;
-			}
-		}
-		else if ((Get_XT60_Connection_State() == NOT_CONNECTED) || (Get_Balance_Connection_State() == NOT_CONNECTED)){
-			if (Get_VBUS_ADC_Reading() > (6 * REG_ADC_MULTIPLIER)) {
-				printf("Requesting 5V, Result: ");
-				status = USBPD_DPM_RequestMessageRequest(USBPD_PORT_0, 1, (uint16_t)5000);
-				vTaskDelay(100 / portTICK_PERIOD_MS);
-				if (status == USBPD_OK) {
-					printf("Success\r\n");
+
+				if ((Get_XT60_Connection_State() == CONNECTED) && (Get_Balance_Connection_State() == CONNECTED) && (power_ready == NOT_READY) && (match_found == 1)) {
+					printf("Requesting %dV, Result: ", (source_pdo[selected_source_pdo].voltage_mv/1000));
+					status = USBPD_DPM_RequestMessageRequest(USBPD_PORT_0, (selected_source_pdo + 1), (uint16_t)source_pdo[selected_source_pdo].voltage_mv);
+					vTaskDelay(400 / portTICK_PERIOD_MS);
+					if (status == USBPD_OK) {
+						if (check_if_power_ready() != READY) {
+							printf("Waiting for input voltage to be ready\r\n");
+							power_ready = NOT_READY;
+						}
+						else {
+							printf("Success\r\n");
+							power_ready = READY;
+						}
+					}
+					else {
+						printf("Failed\r\n");
+						power_ready = NOT_READY;
+					}
 				}
-				else {
-					printf("Failed\r\n");
+				else if ((Get_XT60_Connection_State() == NOT_CONNECTED) || (Get_Balance_Connection_State() == NOT_CONNECTED)){
+					if (Get_VBUS_ADC_Reading() > (6 * REG_ADC_MULTIPLIER)) {
+						printf("Requesting 5V, Result: ");
+						status = USBPD_DPM_RequestMessageRequest(USBPD_PORT_0, 1, (uint16_t)5000);
+						vTaskDelay(100 / portTICK_PERIOD_MS);
+						if (status == USBPD_OK) {
+							printf("Success\r\n");
+						}
+						else {
+							printf("Failed\r\n");
+						}
+					}
+					power_ready = NOT_READY;
+					vTaskDelay(1000 / portTICK_PERIOD_MS);
 				}
-			}
-			power_ready = NOT_READY;
-			vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+				if (DPM_Ports[USBPD_PORT_0].DPM_NumberOfRcvSRCPDO == 0) {
+					pd_state = 2;
+					match_found = 0;
+					power_ready = NOT_READY;
+				}
+
+				vTaskDelay(xDelay);
+			break;
+
 		}
 
-		vTaskDelay(xDelay);
+		printf("@%u-", pd_state);
+
 	}
 }
 
