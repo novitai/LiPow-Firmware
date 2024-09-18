@@ -556,6 +556,7 @@ void vRegulator(void const *pvParameters) {
 	TickType_t xLastWakeTime;
 	const TickType_t xPeriod = 500 / portTICK_PERIOD_MS;	// 500ms tick period
 	uint8_t charge_state_new;								// Temporary variable for state change
+	uint8_t debug_priority = 0;
 
 	/* Disable the output of the regulator for safety */
 	Regulator_HI_Z(1);
@@ -603,11 +604,13 @@ void vRegulator(void const *pvParameters) {
 			if (timer_count == 0) {Balance_Battery();}
 			Control_Charger_Output();
 			if (timer_count >= 20) {charge_state_new = C_RECOVER;}
+			debug_priority = 1;
 			break;
 
 			case C_BALANCE:												// Charge cycle state: Balance
 			if (timer_count == 0) {Balance_Battery();}
 			if (timer_count >= 20) {charge_state_new = C_RECOVER;}
+			debug_priority = 1;
 			break;
 
 			case C_RECOVER:												// Charge cycle state: Recover
@@ -615,6 +618,7 @@ void vRegulator(void const *pvParameters) {
 				Balance_Off();
 				Regulator_HI_Z(1);
 			}
+			debug_priority = 1;
 
 			if (timer_count >= 4) {
 				if (Get_Requires_Charging_State()) {
@@ -623,12 +627,13 @@ void vRegulator(void const *pvParameters) {
 				else {
 					charge_state_new = C_BALANCE;
 				}
+				debug_priority = 2;
 			}
 			break;
 		}
 
 		// Debug output (end of rest period)
-		if (charge_state_new == C_MEASURE || 1) {
+		if (debug_priority >= DEBUG_LEVEL) {
 			printf("%u,", charge_state);											// Charging state
 			printf("%u,", timer_count);												// State timer
 			printf("%u (%06b),", Get_Error_State(), Get_Error_State());				// Error bits
@@ -647,6 +652,7 @@ void vRegulator(void const *pvParameters) {
 			printf("B%04b,", Get_Cell_Over_Voltage_State());						// Cell overvoltage state
 			printf("\r\n");
 		}
+		debug_priority = 0;
 
 		// Update state and timer
 		if (charge_state_new != 0) {

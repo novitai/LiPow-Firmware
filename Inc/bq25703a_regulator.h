@@ -102,6 +102,8 @@ extern "C" {
 
 #define TEMP_THROTTLE_THRESH_C		40
 
+#define DEBUG_LEVEL					2
+
 uint8_t Get_Regulator_Connection_State(void);
 uint8_t Get_Regulator_Charging_State(void);
 uint32_t Get_VBAT_ADC_Reading(void);
