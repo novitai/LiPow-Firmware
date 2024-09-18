@@ -101,6 +101,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define VBAT_PWR_EN_Pin GPIO_PIN_13
+#define VBAT_PWR_EN_GPIO_Port GPIOC
 #define Thermistor_1_ADC_Pin GPIO_PIN_0
 #define Thermistor_1_ADC_GPIO_Port GPIOA
 #define Thermistor_2_ADC_Pin GPIO_PIN_1

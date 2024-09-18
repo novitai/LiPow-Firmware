@@ -195,7 +195,9 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   // [PR] Power enable pin set here:
-  HAL_GPIO_WritePin(GPIOC, ADC_EN_Pin|PWR_OUT_EN_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(ADC_EN_GPIO_Port, ADC_EN_Pin, GPIO_PIN_SET);                // ADCs enabled
+  HAL_GPIO_WritePin(PWR_OUT_EN_GPIO_Port, PWR_OUT_EN_Pin, GPIO_PIN_SET);        // Power out enabled
+  HAL_GPIO_WritePin(VBAT_PWR_EN_GPIO_Port, VBAT_PWR_EN_Pin, GPIO_PIN_RESET);    // Battery power OFF
 
   // Check nBOOT_SEL value. Set if not 0. Enables BOOT mode from BOOT0 Pin
   FLASH_OBProgramInitTypeDef OBInit; // programming option structure
@@ -701,10 +703,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(VBAT_PWR_EN_GPIO_Port, VBAT_PWR_EN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, EN_OTG_Pin|ILIM_HIZ_Pin|Green_LED_Pin|CELL_1S_DIS_EN_Pin
@@ -718,6 +723,13 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, ADC_EN_Pin|PWR_OUT_EN_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin : VBAT_PWR_EN_Pin */
+  GPIO_InitStruct.Pin = VBAT_PWR_EN_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(VBAT_PWR_EN_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : EN_OTG_Pin Red_LED_Pin ILIM_HIZ_Pin Green_LED_Pin
                            CELL_1S_DIS_EN_Pin CELL_2S_DIS_EN_Pin CELL_3S_DIS_EN_Pin CELL_4S_DIS_EN_Pin */
