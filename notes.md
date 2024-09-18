@@ -1,14 +1,3 @@
-# Problems to fix
-
-Charging current always reported as 0, leads to overcharging
-
-Seems to be related to regulator, as it reports charge current.
-
-## Next steps
-
-Add regulator status bytes to 'stats' output
-Add serial debug statements, find out if any actions coincide with ticking
-
 # Useful code
 
 `Get_Charge_Current_ADC_Reading()` returns `regulator.charge_current` (battery charge current), 64mA resolution. Comes from regulator I2C register `ICHG_ADC_ADDR` aka `ADCIBAT`. Can be changed to report discharge current  (256mA resolution) with ChargeOption2 (32h) register.
@@ -22,6 +11,10 @@ Add serial debug statements, find out if any actions coincide with ticking
 `vRegulator` runs as a task and reads regulator status and ADCs, calling `Control_Charger_Output` periodically to control charge parameters
 
 `regulator.charging_status` derived from bit 2 of regulator status word
+
+`regulator.charge_current` ADCIBAT aka 'charge/discharge current' depinding on settings
+
+`regulator.input_current` reads 0, from ADCIINCMPIN aka 'input current' / 'independent comparator' (unused)
 
 Process|Happens inside|Frequency|When
 -|-|-|-
@@ -179,7 +172,35 @@ Try: Run balancing algorithm at end of charge-rest cycle, rather than every few 
 
 ## USB PD
 
+PD is initialised with MX_USBPD_Init() in usbpd.c.
+
+- USBPD_HW_IF_GlobalHwInit() initialises hardware
+- USBPD_DPM_InitCore() sets up callbacks
+- USBPD_DPM_UserInit() Dynamic Power Management related
+- vUSBPD_User() started in user code section, runs continuously
+  - Prints number of received Source PDOs
+  - Lists available PDOs
+  - If no PDOs available, go into infinite loop
+  - Otherwise, monitor Get_Balance_Connection_State() and request appropriate voltage
+
+DPM_Ports[USBPD_PORT_0].DPM_NumberOfRcvSRCPDO) is updated and can be polled from inside vUSBPD_User()
+
 The circuit includes 'dead battery functionality' described in ST application note AN5255. This is why the DBCCn pins are connected to corresponding CCn pins.
+
+## LEDs
+
+When balance lead only connected:
+LED|Meaning
+-|-
+Blue|Balancing is active
+Green|Battery is balanced
+
+When balance and charging leads connected:
+LED|Meaning
+-|-
+Red|Battery charging
+Green|Charged and balanced
+Purple|Balancing and charging
 
 # Regulator notes
 
