@@ -600,29 +600,30 @@ void vRegulator(void const *pvParameters) {
 		// Charge control state machine
 		switch (charge_state) {
 			case C_CHARGE:												// Charge cycle state: Charge
+			if (timer_count == 0) {Balance_Battery();}
 			Control_Charger_Output();
 			if (timer_count >= 20) {charge_state_new = C_RECOVER;}
 			break;
 
 			case C_BALANCE:												// Charge cycle state: Balance
+			if (timer_count == 0) {Balance_Battery();}
 			if (timer_count >= 20) {charge_state_new = C_RECOVER;}
 			break;
 
 			case C_RECOVER:												// Charge cycle state: Recover
-			Balance_Off();
-			Regulator_HI_Z(1);
-
-			if (timer_count >= 4) {charge_state_new = C_MEASURE;}
-			break;
-
-			case C_MEASURE:												// Charge cycle state: Measure & balance
-			if (Get_Requires_Charging_State()) {
-				charge_state_new = C_CHARGE;
+			if (timer_count == 0) {
+				Balance_Off();
+				Regulator_HI_Z(1);
 			}
-			else {
-				charge_state_new = C_BALANCE;
+
+			if (timer_count >= 4) {
+				if (Get_Requires_Charging_State()) {
+					charge_state_new = C_CHARGE;
+				}
+				else {
+					charge_state_new = C_BALANCE;
+				}
 			}
-			Balance_Battery();
 			break;
 		}
 
