@@ -301,6 +301,7 @@ void vRead_ADC(void const *pvParameters) {
 
 			/* Determines battery connection state and performs balancing */
 			Battery_Connection_State();
+			//printf("A");
 
 		} else {
 			/* Did not receive a notification within the expected time. */

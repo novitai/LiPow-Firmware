@@ -301,7 +301,7 @@ void vUSBPD_User(void const *pvParameters) {
 
 		}
 
-		printf("@%u-", pd_state);
+		//printf("@%u-", pd_state);
 
 	}
 }

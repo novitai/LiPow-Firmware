@@ -82,7 +82,7 @@
           </LinkSettings>
           <heapSize>0x200</heapSize>
           <stackSize>0x400</stackSize>
-          <cpuclock>64</cpuclock>
+          <cpuclock>16</cpuclock>
           <board>custom</board>
           <debugprobe>swd</debugprobe>
           <optimization />
