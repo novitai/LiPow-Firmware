@@ -27,7 +27,7 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32g0xx_ll_gpio.h"
 #include "stm32g0xx_ll_rcc.h"
-#include "stm32g0xx_ll_usart.h"
+//#include "stm32g0xx_ll_usart.h"
 #include "stm32g0xx_ll_bus.h"
 #include "stm32g0xx_ll_dma.h"
 /* Private typedef -----------------------------------------------------------*/
