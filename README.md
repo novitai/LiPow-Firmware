@@ -128,7 +128,6 @@ For this reason, after building, go to VSCode and discard all changes (including
 
 This will bring back several deleted files that are necessary for the code to compile, including:
 
-- stm32g0xx_ll_usart.h
 - \Inc\usbpd*
 - \Src\usbpd*
 - \Utilities\GUI*
